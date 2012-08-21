@@ -4,16 +4,16 @@
   "Top level for go-svg customization.")
 
 (defcustom go-program "/usr/bin/gnugo"
-  "Program to "
+  "String containing Go program name."
   :type '(string)
   :group 'go-svg)
 
 (defcustom go-program-args "--mode gtp"
-  "Program to "
+  "String containing Go program command line arguments."
   :type '(string)
   :group 'go-svg)
 
-(defvar boardsize 19)
+(defvar go-boardsize 19)
 (defvar go-img-size 500)
 (defvar go-process-buffer "*gnugo*" ) ;; make local?
 
@@ -22,7 +22,7 @@
   "Starts the go gtp process"
   (start-process "gnugo" "*gnugo*" "gnugo" "--mode" "gtp"))
 
-(defun go-boardsize (size)
+(defun go-boardsize-set (size)
   "Set boardsize to SIZE and clear the board"
   (process-send-string go-process-buffer "boardsize 19\n"))
 
@@ -30,33 +30,39 @@
   "Plays a stone of COLOR at position POS"
   (process-send-string go-process-buffer (concat "play " color " " pos "\n")))
 
+(defun go-genmove (color)
+  "Generate and play the supposedly best move for COLOR."
+  (process-send-string go-process-buffer (concat "genmove " color "\n")))
 
 (defun go-list-stones (color)
   "Returns a list of positions for COLOR"
   (process-send-string go-process-buffer "list_stones " color " \n"))
 
-(defun go-genmove (color)
-  "Generate and play the supposedly best move for COLOR."
-  (process-send-string go-process-buffer (concat "genmove " color "\n")))
+(defun go-stone-alist ()
+  "Returns a list of all stones on board in the form
+'((black ((D . 4) (E . 5))) (white ((G . 3) (H . 4 ))))"
+  
+)
 
-
-(defun go-stones ()
-  "Returns a list of circle S-expressions for splicing into svg
+(defun go-stones (stones-alist)
+  "Returns a list of circle S-expressions for splicing into svg.  
 Random atm, should read in board state"
   (let 
       (value)
-    (dotimes (i 19 value)
-      (dotimes (j 19 value)
-	(if (> (random 2) 0)
-	    (setq value 
-		  (cons 
-		   `(circle :cx ,(number-to-string (+ 2.9 (* i 5)))
-			    :cy ,(number-to-string (+ 2.9 (* j 5)))
-			    :r "2.4" 
-			    :fill ,(concat "url(#" 
-					   (if (> (random 2) 0) 
-					       "rg" "wh") ")"))
-		   value)))))))
+    (dolist (i black)
+      (cons 
+       `(circle :cx ,(number-to-string (cons i))
+		:cy ,(number-to-string (cdr i))
+		:r "2.4" 
+		:fill "url(#rg)")
+       value))
+    (dolist (i white)
+      (cons 
+       (circle :cx ,(number-to-string (cons i))
+		:cy ,(number-to-string (cdr i))
+		:r "2.4" 
+		:fill "url(#rg)")
+       value))))
 
 (defun go-img-string ()
   "Returns a svg string for game image
@@ -88,11 +94,13 @@ Green?
 			   (stop :offset "1" :stop-color "#FFF")))
 	 ,@(go-stones))))
 
-
 (defun go-board-insert ()
-  ""
+  "Insert go board svg image at cursor pos"
   (insert-image
    (create-image (go-img-string) 'svg t
 		 :map '(((circle . ((100 . 100) . 20)) 
 			 area1 
 			 (pointer hand))))))
+
+
+ 
