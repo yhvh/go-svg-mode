@@ -1,4 +1,29 @@
-;; depends xmlgen https://github.com/philjackson/xmlgen
+;;; xml-gen.el --- A DSL for generating XML.
+
+;; Copyright (C) 2012 William Stevenson
+
+;; Author: William Stevenson <yhvh2000@gmail.com>
+;; Version: 0.4
+
+;; This file is not currently part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2, or (at
+;; your option) any later version.
+
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program ; see the file COPYING.  If not, write to
+;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+;; Boston, MA 02111-1307, USA.
+
+;;; Commentary:
+;; depends on xmlgen https://github.com/philjackson/xmlgen
 
 (defgroup go-svg nil
   "Top level for go-svg customization.")
@@ -39,13 +64,10 @@
   (process-send-string go-process-buffer (concat "list_stones " color " \n")))
 
 (defun go-move-to-string (move)
-  "Converts MOVE to string, `(1 5) will convert to `A5' "
+  "Converts MOVE to string, `(1 5) will convert to `A5' ")
 
-  )
 (defun go-string-to-move (string)
-  "Converts string STRING to list, `A5' will convert to `(1 5)"
-
-  )
+  "Converts string STRING to list, `A5' will convert to `(1 5)")
 
 (defun go-stone-alist ()
   "Returns a list of all stones on board in the form
@@ -97,3 +119,4 @@
 		 :map '(((circle . ((100 . 100) . 20))
 			 area1
 			 (pointer hand))))))
+ 
