@@ -41,7 +41,22 @@
 (defvar go-boardsize 19)
 (defvar go-img-size 500)
 (defvar go-process-buffer "*gnugo*" )
-(defvar go-letter-map)
+
+(defvar go-position-map
+  (let (result)
+    (dotimes (j 19)
+      (dotimes (i 19)
+	(setq
+	 result
+	 (cons
+	  `(,(intern
+	      (concat
+	       (char-to-string (if (> 8 i) (+ 65 i) (+ 66 i)))
+	       (number-to-string (+ 1 j))))
+	    ,(+ 1 i) ,(+ 1 j))
+	  result))))
+    result)
+  "Holds board symbol map, '((A1 1 1) (T19 19 19))")
 
 (defvar go-process nil
   "Holds the process associated with this buffer")
