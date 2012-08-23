@@ -40,28 +40,66 @@
 
 (defvar go-boardsize 19)
 (defvar go-img-size 500)
-(defvar go-process-buffer "*gnugo*" ) ;; make local?
+(defvar go-process-buffer "*gnugo*" )
 (defvar go-letter-map)
 
-(defun go-process ()
+(defvar go-process nil
+  "Holds the process associated with this buffer")
+
+(defvar go-process-result nil
+  "Holds a string of successful process output.
+Set to nil after result has been used.  ")
+
+(defun go-filter-function (proc string)
+"Filter function for go gtp process.  "
+(cond
+ ((string-match "?" string) ;; Process error
+  (message (concat "Error: " string))
+  (setq go-process-result nil))
+ (t (setq go-process-result string))))
+
+(defun go-start-process ()
   "Starts the go gtp process"
-  (start-process "gnugo" "*gnugo*" "gnugo" "--mode" "gtp"))
+  (setq go-process 
+	(start-process "gnugo" "*gnugo*" "gnugo" "--mode" "gtp"))
+  (set-process-filter go-process 'go-filter-function))
 
 (defun go-boardsize-set (size)
   "Set boardsize to SIZE and clear the board"
-  (process-send-string go-process-buffer "boardsize 19\n"))
+  (process-send-string 
+   go-process-buffer
+   (concat "boardsize " (number-to-string size) "\n"))
+  (accept-process-output go-process)
+  (if go-process-result
+      (setq go-boardsize size)
+    (setq go-boardsize nil)))
 
 (defun go-play-stone (color pos)
   "Plays a stone of COLOR at position POS"
-  (process-send-string go-process-buffer (concat "play " color " " pos "\n")))
+  (process-send-string 
+   go-process-buffer 
+   (concat "play " color " " pos "\n"))
+  (accept-process-output go-process)
+  (if go-process-result
+      t					;update display
+    nil))
 
 (defun go-genmove (color)
   "Generate and play the supposedly best move for COLOR."
-  (process-send-string go-process-buffer (concat "genmove " color "\n")))
+  (process-send-string 
+   go-process-buffer 
+   (concat "genmove " color "\n")))
 
 (defun go-list-stones (color)
   "Returns a list of positions for COLOR"
-  (process-send-string go-process-buffer (concat "list_stones " color " \n")))
+  (process-send-string
+   go-process-buffer
+   (concat "list_stones " (symbol-name color) " \n"))
+  (accept-process-output go-process)
+  (if go-process-result
+      (setq (cdr (assoc color go-stones-alist))
+	    (mapcar 'intern go-process-result))
+    nil))
 
 (defun go-move-to-string (move)
   "Converts MOVE to string, `(1 5) will convert to `A5' ")
@@ -69,10 +107,9 @@
 (defun go-string-to-move (string)
   "Converts string STRING to list, `A5' will convert to `(1 5)")
 
-(defun go-stone-alist ()
+(defvar go-stones-alist   '(black nil white nil)
   "Returns a list of all stones on board in the form
-'((black 5 5) (white 6 3) (black 7 4))"
-  '((black 0 0) (white 18 0) (black 0 18) (white 18 18)))
+'((black 5 5) (white 6 3) (black 7 4))")
 
 (defun go-stones (stones-alist)
   "Returns a list of circle S-expressions for splicing into svg."
@@ -119,4 +156,3 @@
 		 :map '(((circle . ((100 . 100) . 20))
 			 area1
 			 (pointer hand))))))
- 
