@@ -78,14 +78,14 @@ Set to nil after result has been used.  ")
       (if (string-match "\n\n" go-process-result)
 	  (setq go-process-finishedp t)
 	(progn
-	  (setq go-process-result 
-		(concat string go-process-result))))	  
+	  (setq go-process-result
+		(concat string go-process-result))))
     (cond
      ((string-match "?" string) ;; Process error
       (message (concat "Error: " string))
       (setq go-process-result nil))
-     (t 
-      (setq go-process-result 
+     (t
+      (setq go-process-result
 	    (concat string go-process-result))
       (setq go-process-finishedp t)))))
 
@@ -137,7 +137,7 @@ Set to nil after result has been used.  ")
   (progn
     (while (not go-process-finishedp))
     (if (string-match "[A-T]+[0-9]+" go-process-result)
-	(setcdr 
+	(setcdr
 	 (assoc color go-stones-alist)
 	 (cons
 	  (intern (match-string 0 go-process-result))
@@ -163,8 +163,8 @@ Set to nil after result has been used.  ")
 (defun go-stones-refresh-alist ()
   "Returns a list of all stones on board in the form
 '((black (D5 E7) (white (D6 F3)))"
-  (setq go-stones-alist 
-	`((black ,@(go-list-stones 'black)) 
+  (setq go-stones-alist
+	`((black ,@(go-list-stones 'black))
 	  (white ,@(go-list-stones 'white)))))
 
 (defun go-stones ()
@@ -212,14 +212,19 @@ Set to nil after result has been used.  ")
 	 :encoding "UTF-8" :viewBox "0 0 96 96"
 	 (rect :width "114" :height "114" :fill "#DCB35C")
 	 (path :stroke "#000" :stroke-width ".2" :fill "none"
-	       :d "M2.9,93h90.2m-.2-5H3m0-5h90m0-5H3m0-5h90m0
--5H3m0-5h90m0-5H3m0-5h90m0-5H3m0-5h90m0-5H3m0-5h90m0-5H3m0-5h90m0
--5H3m0-5h90m0-5H3m-.1-5h90.2M3,3V93m5,0V3m5,0V93m5,0V3m5,0V93m5,
-0V3m5,0V93m5,0V3m5,0V93m5,0V3m5,0V93m5,0V3m5,0V93m5,0V3m5,0V93m5,
-0V3m5,0V93m5,0V3m5,0V93m5,0V3")
-	 (path :stroke "#000" :stroke-width "2" :stroke-linecap "round"
-	       :d "M18,78l0,0m30,0l0,0m30,0l0,0m0-30l0,0m-30,0l0,
-0m-30,0l0,0m0-30l0,0m30,0l0,0m30,0l0,0")
+	       :d "M2.9,93 h90.2 m-.2-5 H3 m0-5
+h90 m0-5 H3 m0-5 h90 m0-5 H3 m0-5 h90 m0-5 H3
+m0-5 h90 m0-5 H3 m0-5 h90 m0-5 H3 m0-5 h90 m0-5
+H3 m0-5 h90 m0-5 H3 m0-5 h90 m0-5 H3 m-.1-5 h90.2
+M3,3 V93 m5,0 V3 m5,0 V93 m5,0 V3 m5,0 V93 m5,0
+V3 m5,0 V93 m5,0 V3 m5,0 V93 m5,0 V3 m5,0 V93
+m5,0 V3 m5,0 V93 m5,0 V3 m5,0 V93 m5,0 V3 m5,0
+V93 m5,0 V3 m5,0 V93 m5,0 V3")
+	 (path :stroke "#000" :stroke-width "2"
+	       :stroke-linecap "round"
+	       :d "M18,78 l0,0 m30,0 l0,0
+m30,0 l0,0 m0-30 l0,0 m-30,0 l0,0 m-30,0 l0,0
+m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
 	 (defs
 	   (radialGradient :id "rg" :cx ".3" :cy ".3" :r ".8"
 			   (stop :offset "0" :stop-color "#777")
