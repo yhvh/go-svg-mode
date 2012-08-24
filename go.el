@@ -1,4 +1,4 @@
-;;; xml-gen.el --- A DSL for generating XML.
+;;; go-svg.el --- A go gtp interface with svg image support
 
 ;; Copyright (C) 2012 William Stevenson
 
@@ -24,6 +24,7 @@
 
 ;;; Commentary:
 ;; depends on xmlgen https://github.com/philjackson/xmlgen
+(require 'xmlgen)
 
 (defgroup go-svg nil
   "Top level for go-svg customization.")
@@ -39,7 +40,7 @@
   :group 'go-svg)
 
 (defvar go-boardsize 19)
-(defvar go-img-size 500)
+(defvar go-img-size 300)
 (defvar go-process-buffer "*gnugo*" )
 
 (defvar go-position-map
@@ -58,6 +59,10 @@
     result)
   "Holds board symbol map, '((A1 1 1) (T19 19 19))")
 
+(defun go-symbol-position (symbol)
+  "Returns position associated with symbol."
+  (cdr (assoc symbol go-position-map)))
+
 (defvar go-process nil
   "Holds the process associated with this buffer")
 
@@ -65,23 +70,44 @@
   "Holds a string of successful process output.
 Set to nil after result has been used.  ")
 
+(defvar go-process-finishedp nil)
+
 (defun go-filter-function (proc string)
-"Filter function for go gtp process.  "
-(cond
- ((string-match "?" string) ;; Process error
-  (message (concat "Error: " string))
-  (setq go-process-result nil))
- (t (setq go-process-result string))))
+  "Filter function for go gtp process. "
+  (if go-process-result
+      (if (string-match "\n\n" go-process-result)
+	  (setq go-process-finishedp t)
+	(progn
+	  (setq go-process-result 
+		(concat string go-process-result))))	  
+    (cond
+     ((string-match "?" string) ;; Process error
+      (message (concat "Error: " string))
+      (setq go-process-result nil))
+     (t 
+      (setq go-process-result 
+	    (concat string go-process-result))
+      (setq go-process-finishedp t)))))
 
 (defun go-start-process ()
   "Starts the go gtp process"
-  (setq go-process 
+  (setq go-process nil)
+  (setq go-process-result nil)
+  (setq go-process-finishedp nil)
+  (setq go-stones-alist '((black) (white)))
+  (setq go-process
 	(start-process "gnugo" "*gnugo*" "gnugo" "--mode" "gtp"))
   (set-process-filter go-process 'go-filter-function))
 
+(defun go-kill-process ()
+  (setq go-stones-alist '((black) (white)))
+  (delete-process go-process))
+
 (defun go-boardsize-set (size)
   "Set boardsize to SIZE and clear the board"
-  (process-send-string 
+  (setq go-process-result nil)
+  (setq go-process-finishedp nil)
+  (process-send-string
    go-process-buffer
    (concat "boardsize " (number-to-string size) "\n"))
   (accept-process-output go-process)
@@ -91,50 +117,89 @@ Set to nil after result has been used.  ")
 
 (defun go-play-stone (color pos)
   "Plays a stone of COLOR at position POS"
-  (process-send-string 
-   go-process-buffer 
-   (concat "play " color " " pos "\n"))
+  (setq go-process-result nil)
+  (process-send-string
+   go-process-buffer
+   (concat "play " (symbol-name color) " " pos "\n"))
   (accept-process-output go-process)
   (if go-process-result
       t					;update display
     nil))
 
 (defun go-genmove (color)
-  "Generate and play the supposedly best move for COLOR."
-  (process-send-string 
-   go-process-buffer 
-   (concat "genmove " color "\n")))
+  "Generate and play the supposed best move for COLOR."
+  (setq go-process-result nil)
+  (setq go-process-finishedp nil)
+  (process-send-string
+   go-process-buffer
+   (concat "genmove " (symbol-name color) "\n"))
+  (accept-process-output go-process)
+  (progn
+    (while (not go-process-finishedp))
+    (if (string-match "[A-T]+[0-9]+" go-process-result)
+	(setcdr 
+	 (assoc color go-stones-alist)
+	 (cons
+	  (intern (match-string 0 go-process-result))
+	  (cdr (assoc color go-stones-alist))))
+      nil)))
+
+(defvar go-stones-alist nil
+  "Stores the moves so far.")
 
 (defun go-list-stones (color)
   "Returns a list of positions for COLOR"
+  (setq go-process-result nil)
   (process-send-string
    go-process-buffer
    (concat "list_stones " (symbol-name color) " \n"))
   (accept-process-output go-process)
   (if go-process-result
-      (setq (cdr (assoc color go-stones-alist))
-	    (mapcar 'intern go-process-result))
+      (mapcar				; wrong
+       'intern
+       (split-string (substring go-process-result 1)))
     nil))
 
-(defun go-move-to-string (move)
-  "Converts MOVE to string, `(1 5) will convert to `A5' ")
-
-(defun go-string-to-move (string)
-  "Converts string STRING to list, `A5' will convert to `(1 5)")
-
-(defvar go-stones-alist   '(black nil white nil)
+(defun go-stones-refresh-alist ()
   "Returns a list of all stones on board in the form
-'((black 5 5) (white 6 3) (black 7 4))")
+'((black (D5 E7) (white (D6 F3)))"
+  (setq go-stones-alist `((black ,@(go-list-stones 'black)) (white ,@(go-list-stones 'white)))))
 
-(defun go-stones (stones-alist)
+(defun go-stones ()
   "Returns a list of circle S-expressions for splicing into svg."
-  (mapcar
-   (lambda (el)
-     `(circle :cx ,(number-to-string (+ 2.5 (* 5 (car (cdr (cdr el))))))
-	      :cy ,(number-to-string (+ 2.5 (* 5 (car (cdr el)))))
-	      :r "2.4"
-	      :fill ,(concat "url(#" (if (eq 'black (car el)) "rg" "wh") ")")))
-   stones-alist))
+  (let ((black-positions (cdr (assoc 'black go-stones-alist)))
+	(white-positions (cdr (assoc 'white go-stones-alist))))
+    (append
+     (mapcar
+      (lambda (el)
+	`(circle :cx ,(number-to-string
+		       (+ 2.5
+			  (* 5
+			     (car
+			      (go-symbol-position el)))))
+		 :cy ,(number-to-string
+		       (+ 2.5
+			  (* 5
+			     (car (cdr
+				   (go-symbol-position el))))))
+		 :r "2.4"
+		 :fill ,(concat "url(#rg)")))
+      black-positions)
+     (mapcar
+      (lambda (el)
+	`(circle :cx ,(number-to-string
+		       (+ 2.5
+			  (* 5
+			     (car
+			      (go-symbol-position el)))))
+		 :cy ,(number-to-string
+		       (+ 2.5
+			  (* 5
+			     (car (cdr
+				   (go-symbol-position el))))))
+		 :r "2.4"
+		 :fill ,(concat "url(#wh)")))
+      white-positions))))
 
 (defun go-img-string ()
   "Returns a svg string for game image"
@@ -162,7 +227,7 @@ Set to nil after result has been used.  ")
 			   (stop :offset "0" :stop-color "#FEE")
 			   (stop :offset ".3" :stop-color "#DDD")
 			   (stop :offset "1" :stop-color "#FFF")))
-	 ,@(go-stones (go-stone-alist)))))
+	 ,@(go-stones))))
 
 (defun go-board-insert ()
   "Insert go board svg image at cursor pos"
@@ -171,3 +236,18 @@ Set to nil after result has been used.  ")
 		 :map '(((circle . ((100 . 100) . 20))
 			 area1
 			 (pointer hand))))))
+
+(defun go-test ()
+  "Test go-svg"
+  (progn
+    (go-start-process)
+    (go-genmove 'black)
+    (go-genmove 'white)
+    (go-board-insert)))
+
+(defun go-test-continue ()
+  "Test go-svg"
+  (progn
+    (go-genmove 'black)
+    (go-genmove 'white)
+    (go-board-insert)))
