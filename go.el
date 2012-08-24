@@ -163,7 +163,9 @@ Set to nil after result has been used.  ")
 (defun go-stones-refresh-alist ()
   "Returns a list of all stones on board in the form
 '((black (D5 E7) (white (D6 F3)))"
-  (setq go-stones-alist `((black ,@(go-list-stones 'black)) (white ,@(go-list-stones 'white)))))
+  (setq go-stones-alist 
+	`((black ,@(go-list-stones 'black)) 
+	  (white ,@(go-list-stones 'white)))))
 
 (defun go-stones ()
   "Returns a list of circle S-expressions for splicing into svg."
