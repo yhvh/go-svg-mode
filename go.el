@@ -69,31 +69,27 @@
 (defvar go-process-result nil
   "Holds a string of successful process output.
 Set to nil after result has been used.  ")
-
-(defvar go-process-finishedp nil)
+(defvar go-process-reply nil)
 
 (defun go-filter-function (proc string)
   "Filter function for go gtp process. "
-  (if go-process-result
-      (if (string-match "\n\n" go-process-result)
-	  (setq go-process-finishedp t)
+  (let* ((result-tmp (concat go-process-reply string))
+	 (end-of-result (string-match "\n\n" result-tmp)))
+    (if (and end-of-result
+	     (numberp end-of-result)
+	     (> end-of-result 0))
 	(progn
-	  (setq go-process-result
-		(concat string go-process-result))))
-    (cond
-     ((string-match "?" string) ;; Process error
-      (message (concat "Error: " string))
-      (setq go-process-result nil))
-     (t
-      (setq go-process-result
-	    (concat string go-process-result))
-      (setq go-process-finishedp t)))))
+	  (setq go-process-result result-tmp)
+	  (setq go-process-reply nil)
+	  (if (string-match "?" go-process-result)
+	      (message (concat "Error: " go-process-result))))
+      (progn
+	(setq go-process-reply result-tmp)))))
 
 (defun go-start-process ()
   "Starts the go gtp process"
   (setq go-process nil)
-  (setq go-process-result nil)
-  (setq go-process-finishedp nil)
+  (setq go-process-reply nil)
   (setq go-stones-alist '((black) (white)))
   (setq go-process
 	(start-process "gnugo" "*gnugo*" "gnugo" "--mode" "gtp"))
@@ -105,19 +101,19 @@ Set to nil after result has been used.  ")
 
 (defun go-boardsize-set (size)
   "Set boardsize to SIZE and clear the board"
+  (setq go-process-reply nil)
   (setq go-process-result nil)
-  (setq go-process-finishedp nil)
   (process-send-string
    go-process-buffer
    (concat "boardsize " (number-to-string size) "\n"))
   (accept-process-output go-process)
-  (if go-process-result
+  (if go-process-reply
       (setq go-boardsize size)
     (setq go-boardsize nil)))
 
 (defun go-play-stone (color pos)
   "Plays a stone of COLOR at position POS"
-  (setq go-process-result nil)
+  (setq go-process-reply nil)
   (process-send-string
    go-process-buffer
    (concat "play " (symbol-name color) " " pos "\n"))
@@ -128,21 +124,20 @@ Set to nil after result has been used.  ")
 
 (defun go-genmove (color)
   "Generate and play the supposed best move for COLOR."
+  (setq go-process-reply nil)
   (setq go-process-result nil)
-  (setq go-process-finishedp nil)
   (process-send-string
    go-process-buffer
    (concat "genmove " (symbol-name color) "\n"))
-  (accept-process-output go-process)
-  (progn
-    (while (not go-process-finishedp))
-    (if (string-match "[A-T]+[0-9]+" go-process-result)
-	(setcdr
-	 (assoc color go-stones-alist)
-	 (cons
-	  (intern (match-string 0 go-process-result))
-	  (cdr (assoc color go-stones-alist))))
-      nil)))
+  (while (not go-process-result)
+      (accept-process-output go-process 30))
+  (if (string-match "[A-T]+[0-9]+" go-process-result)
+      (setcdr
+       (assoc color go-stones-alist)
+       (cons
+	(intern (match-string 0 go-process-result))
+	(cdr (assoc color go-stones-alist))))
+    (message (concat "Fail\|" go-process-result "\|"))))
 
 (defvar go-stones-alist nil
   "Stores the moves so far.")
