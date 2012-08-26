@@ -79,12 +79,9 @@ Set to nil after result has been used.  ")
 	     (numberp end-of-result)
 	     (> end-of-result 0))
 	(progn
-	  (setq go-process-result result-tmp)
 	  (setq go-process-reply nil)
-	  (if (string-match "?" go-process-result)
-	      (message (concat "Error: " go-process-result))))
-      (progn
-	(setq go-process-reply result-tmp)))))
+	  (setq go-process-result result-tmp))
+      (setq go-process-reply result-tmp))))
 
 (defun go-start-process ()
   "Starts the go gtp process"
