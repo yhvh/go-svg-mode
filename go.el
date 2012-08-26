@@ -43,6 +43,14 @@
 (defvar go-img-size 300)
 (defvar go-process-buffer "*gnugo*" )
 
+(defvar go-next-color 'white
+  "Holds the next stone color to be played.")
+
+(defun go-toggle-next-color ()
+  (if (eq go-next-color 'black)
+      (set go-next-color 'white)
+    (set go-next-color 'black)))
+
 (defvar go-position-map
   (let (result)
     (dotimes (j 19)
@@ -108,21 +116,26 @@ Set to nil after result has been used.  ")
       (setq go-boardsize size)
     (setq go-boardsize nil)))
 
-(defun go-play-stone (color pos)
+(defun go-play-stone (pos)
   "Plays a stone of COLOR at position POS"
+  (interactive "SPosition to play: ")
   (setq go-process-reply nil)
   (setq go-process-result nil)
   (process-send-string
    go-process-buffer
-   (concat "play " (symbol-name color) " " (symbol-name pos) "\n"))
+   (concat "play "
+	   (symbol-name go-next-color)
+	   " "
+	   (symbol-name pos) "\n"))
   (accept-process-output go-process)
   (if go-process-result
       (progn
 	(setcdr
-	 (assoc color go-stones-alist)
+	 (assoc go-next-color go-stones-alist)
 	 (cons
 	  pos
-	  (cdr (assoc color go-stones-alist))))
+	  (cdr (assoc go-next-color go-stones-alist))))
+	(go-toggle-next-color)
 	(go-board-update))
     nil))
 
@@ -142,6 +155,7 @@ Set to nil after result has been used.  ")
 	 (cons
 	  (intern (match-string 0 go-process-result))
 	  (cdr (assoc color go-stones-alist))))
+	(go-toggle-next-color)
 	(go-board-update))
     (message (concat "Fail\|" go-process-result "\|"))))
 
@@ -250,6 +264,7 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
 
 (defun go-board-update ()
   "Updates the go board image"
+  (interactive)
   (setq buffer-read-only nil)
   (erase-buffer)
   (go-board-insert))
@@ -258,15 +273,17 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
   (let ((map (make-sparse-keymap)))
     (define-key map "g" 'go-board-update)
     (define-key map "k" 'gosvg-cleanup)
+    (define-key map "p" 'go-play-stone)
     map)
   "Keymap for `gosvg-mode'")
 
 (define-derived-mode gosvg-mode special-mode "gosvg"
   "Major mode for playing Go with SVG display
 \\{gosvg-mode-map}"
-  (make-variable-buffer-local 'go-stones-alist)
-  (make-variable-buffer-local 'go-process-result)
-  (make-variable-buffer-local 'go-process-reply)
+  (make-local-variable 'go-stones-alist)
+  (make-local-variable 'go-process-result)
+  (make-local-variable 'go-process-reply)
+  (make-local-variable 'go-next-color)
   (let ((win-size (window-inside-absolute-pixel-edges)))
     (setq go-img-size (min (- (nth 2 win-size) (nth 0 win-size))
 			   (- (nth 3 win-size) (nth 1 win-size)))))
