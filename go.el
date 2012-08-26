@@ -262,10 +262,6 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
 (define-derived-mode gosvg-mode special-mode "gosvg"
   "Major mode for playing Go with SVG display
 \\{gosvg-mode-map}"
-  (kill-all-local-variables)
-  (setq major-mode 'gosvg-mode
-	mode-name "gosvg")
-  (use-local-map gosvg-mode-map)
   (make-variable-buffer-local 'go-stones-alist)
   (make-variable-buffer-local 'go-process-result)
   (make-variable-buffer-local 'go-process-reply)
