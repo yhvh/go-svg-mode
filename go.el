@@ -111,6 +111,7 @@ Set to nil after result has been used.  ")
 (defun go-play-stone (color pos)
   "Plays a stone of COLOR at position POS"
   (setq go-process-reply nil)
+  (setq go-process-result nil)
   (process-send-string
    go-process-buffer
    (concat "play " (symbol-name color) " " (symbol-name pos) "\n"))
@@ -149,6 +150,7 @@ Set to nil after result has been used.  ")
 
 (defun go-list-stones (color)
   "Returns a list of positions for COLOR"
+  (setq go-process-reply nil)
   (setq go-process-result nil)
   (process-send-string
    go-process-buffer
@@ -268,7 +270,7 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
   (let ((win-size (window-inside-absolute-pixel-edges)))
     (setq go-img-size (min (- (nth 2 win-size) (nth 0 win-size))
 			   (- (nth 3 win-size) (nth 1 win-size)))))
-)
+  (setq cursor-type nil))
 
 (defun gosvg ()
   "Play the game of Go with SVG display"
