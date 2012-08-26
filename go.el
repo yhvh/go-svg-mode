@@ -236,6 +236,28 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
 			 area1
 			 (pointer hand))))))
 
+(define-derived-mode gosvg-mode nil "Go SVG"
+  "Major mode for playing Go with SVG display
+\\{gosvg-mode-map}"
+  (kill-all-local-variables)
+  (make-variable-buffer-local 'go-stones-alist)
+  (make-variable-buffer-local 'go-process-result)
+  (make-variable-buffer-local 'go-process-reply)
+  (let ((win-size (window-inside-absolute-pixel-edges)))
+    (setq go-img-size (min (- (nth 2 win-size) (nth 0 win-size))
+			   (- (nth 3 win-size) (nth 1 win-size)))))
+  (setq cursor-type nil))
+
+(defun gosvg ()
+  "Play the game of Go with SVG display"
+  (interactive)
+  (switch-to-buffer (get-buffer-create "gosvg"))
+  (gosvg-mode)
+  (go-start-process)
+  (go-board-insert)
+  )
+
+
 (defun go-test ()
   "Test go-svg"
     (go-start-process)
