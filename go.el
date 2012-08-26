@@ -238,15 +238,13 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
 
 (defun go-test ()
   "Test go-svg"
-  (progn
     (go-start-process)
     (go-genmove 'black)
     (go-genmove 'white)
-    (go-board-insert)))
+    (go-board-insert))
 
 (defun go-test-continue ()
   "Test go-svg"
-  (progn
     (go-genmove 'black)
     (go-genmove 'white)
-    (go-board-insert)))
+    (go-board-insert))
