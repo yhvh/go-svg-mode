@@ -54,7 +54,7 @@
 	      (concat
 	       (char-to-string (if (> 8 i) (+ 65 i) (+ 66 i)))
 	       (number-to-string (+ 1 j))))
-	    ,(+ 1 i) ,(+ 1 j))
+	    ,i ,j)
 	  result))))
     result)
   "Holds board symbol map, '((A1 1 1) (T19 19 19))")
