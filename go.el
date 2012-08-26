@@ -113,10 +113,16 @@ Set to nil after result has been used.  ")
   (setq go-process-reply nil)
   (process-send-string
    go-process-buffer
-   (concat "play " (symbol-name color) " " pos "\n"))
+   (concat "play " (symbol-name color) " " (symbol-name pos) "\n"))
   (accept-process-output go-process)
   (if go-process-result
-      t					;update display
+      (progn
+	(setcdr
+	 (assoc color go-stones-alist)
+	 (cons
+	  pos
+	  (cdr (assoc color go-stones-alist))))
+	(go-board-update))
     nil))
 
 (defun go-genmove (color)
@@ -129,11 +135,13 @@ Set to nil after result has been used.  ")
   (while (not go-process-result)
       (accept-process-output go-process 30))
   (if (string-match "[A-T]+[0-9]+" go-process-result)
-      (setcdr
-       (assoc color go-stones-alist)
-       (cons
-	(intern (match-string 0 go-process-result))
-	(cdr (assoc color go-stones-alist))))
+      (progn
+	(setcdr
+	 (assoc color go-stones-alist)
+	 (cons
+	  (intern (match-string 0 go-process-result))
+	  (cdr (assoc color go-stones-alist))))
+	(go-board-update))
     (message (concat "Fail\|" go-process-result "\|"))))
 
 (defvar go-stones-alist nil
@@ -230,23 +238,41 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
 
 (defun go-board-insert ()
   "Insert go board svg image at cursor pos"
+  (setq buffer-read-only nil)
   (insert-image
    (create-image (go-img-string) 'svg t
 		 :map '(((circle . ((100 . 100) . 20))
 			 area1
-			 (pointer hand))))))
+			 (pointer hand)))))
+  (setq buffer-read-only t))
 
-(define-derived-mode gosvg-mode nil "Go SVG"
+(defun go-board-update ()
+  "Updates the go board image"
+  (setq buffer-read-only nil)
+  (erase-buffer)
+  (go-board-insert))
+
+(defvar gosvg-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "g" 'go-board-update)
+    (define-key map "k" 'gosvg-cleanup)
+    map)
+  "Keymap for `gosvg-mode'")
+
+(define-derived-mode gosvg-mode special-mode "gosvg"
   "Major mode for playing Go with SVG display
 \\{gosvg-mode-map}"
   (kill-all-local-variables)
+  (setq major-mode 'gosvg-mode
+	mode-name "gosvg")
+  (use-local-map gosvg-mode-map)
   (make-variable-buffer-local 'go-stones-alist)
   (make-variable-buffer-local 'go-process-result)
   (make-variable-buffer-local 'go-process-reply)
   (let ((win-size (window-inside-absolute-pixel-edges)))
     (setq go-img-size (min (- (nth 2 win-size) (nth 0 win-size))
 			   (- (nth 3 win-size) (nth 1 win-size)))))
-  (setq cursor-type nil))
+)
 
 (defun gosvg ()
   "Play the game of Go with SVG display"
@@ -257,16 +283,19 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
   (go-board-insert)
   )
 
+(defun gosvg-cleanup ()
+  "Kills processes and buffers used"
+  (interactive)
+  (go-kill-process)
+  (kill-buffer go-process-buffer)
+  (kill-buffer "gosvg"))
 
 (defun go-test ()
   "Test go-svg"
-    (go-start-process)
     (go-genmove 'black)
-    (go-genmove 'white)
-    (go-board-insert))
+    (go-genmove 'white))
 
 (defun go-test-continue ()
   "Test go-svg"
     (go-genmove 'black)
-    (go-genmove 'white)
-    (go-board-insert))
+    (go-genmove 'white))
