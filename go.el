@@ -116,6 +116,21 @@ Set to nil after result has been used.  ")
       (setq go-boardsize size)
     (setq go-boardsize nil)))
 
+(defun go-level-set (level)
+  "Set boardsize to SIZE and clear the board"
+  (interactive "sSet Go level to: ")
+  (setq go-process-reply nil)
+  (setq go-process-result nil)
+  (process-send-string
+   go-process-buffer
+   (concat "level " level "\n"))
+  (while (not go-process-result)
+    (accept-process-output go-process 30))
+  (if go-process-result
+      (setq go-level )
+    (setq go-boardsize nil)))
+
+
 (defun go-play-stone (pos)
   "Plays a stone of COLOR at position POS"
   (interactive "SPosition to play: ")
@@ -284,6 +299,8 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
     (define-key map "k" 'gosvg-cleanup)
     (define-key map "p" 'go-play-stone)
     (define-key map "m" 'go-genmove)
+    (define-key map "l" 'go-level-set)
+    (define-key map [D4 mouse-1] 'go-genmove)
     map)
   "Keymap for `gosvg-mode'")
 
