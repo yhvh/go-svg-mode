@@ -283,19 +283,27 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
 (defun go-pos-offset ()
   (/ go-img-size go-boardsize))
 
+(defun go-mouse-event-circles ()
+  "Returns a plist of circles at positions which are free of
+stones."
+  (mapcar
+   (lambda (el)
+     (if (not
+	  (or
+	   (member (car el) (cdr (assoc 'black go-stones-alist)))
+	   (member (car el) (cdr (assoc 'white go-stones-alist)))))
+	 `((circle . (( ,(* (go-pos-offset) (cadr el)) .
+			,(* (go-pos-offset) (car (cddr el)))) . 10))
+	   ,(car el) ; event name eg. [D4 mouse-1]
+	   (pointer hand))))
+   go-position-map))
+
 (defun go-board-insert ()
   "Insert go board svg image at cursor pos"
   (setq buffer-read-only nil)
   (insert-image
    (create-image (go-img-string) 'svg t
-		 :map (mapcar
-		       (lambda (el)
-			 (if (not (or (member (car el) (cdr (assoc 'black go-stones-alist)))
-				      (member (car el) (cdr (assoc 'white go-stones-alist)))))
-			     `((circle . ((,(* (go-pos-offset) (cadr el)) . ,(* (go-pos-offset) (car (cddr el)))) . 10))
-			       ,(car el) ; event name [D4 mouse-down]
-			       (pointer hand))))
-		       go-position-map)))
+		 :map (go-mouse-event-circles)))
   (setq buffer-read-only t))
 
 (defun go-board-update ()
