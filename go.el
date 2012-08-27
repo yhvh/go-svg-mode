@@ -269,7 +269,10 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
 			   (stop :offset ".3" :stop-color "#DDD")
 			   (stop :offset "1" :stop-color "#FFF")))
 	 ,@(go-stones))))
-(defvar go-pos-offset (/ go-img-size go-boardsize))
+
+(defun go-pos-offset ()
+  (/ go-img-size go-boardsize))
+
 (defun go-board-insert ()
   "Insert go board svg image at cursor pos"
   (setq buffer-read-only nil)
@@ -279,7 +282,7 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
 		       (lambda (el)
 			 (if (not (or (member (car el) (cdr (assoc 'black go-stones-alist)))
 				      (member (car el) (cdr (assoc 'white go-stones-alist)))))
-			     `((circle . ((,(* go-pos-offset (cadr el)) . ,(* go-pos-offset (car (cddr el)))) . 20))
+			     `((circle . ((,(* (go-pos-offset) (cadr el)) . ,(* (go-pos-offset) (car (cddr el)))) . 10))
 			       ,(car el) ; event name [D4 mouse-down]
 			       (pointer hand))))
 		       go-position-map)))
