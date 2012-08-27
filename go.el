@@ -48,8 +48,8 @@
 
 (defun go-toggle-next-color ()
   (if (eq go-next-color 'black)
-      (set go-next-color 'white)
-    (set go-next-color 'black)))
+      (setq go-next-color 'white)
+    (setq go-next-color 'black)))
 
 (defvar go-position-map
   (let (result)
