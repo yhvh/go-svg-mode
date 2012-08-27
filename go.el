@@ -139,25 +139,27 @@ Set to nil after result has been used.  ")
 	(go-board-update))
     nil))
 
-(defun go-genmove (color)
+(defun go-genmove (&optional color)
   "Generate and play the supposed best move for COLOR."
+  (interactive)
   (setq go-process-reply nil)
   (setq go-process-result nil)
-  (process-send-string
-   go-process-buffer
-   (concat "genmove " (symbol-name color) "\n"))
-  (while (not go-process-result)
+  (let ((col (or color go-next-color)))
+    (process-send-string
+     go-process-buffer
+     (concat "genmove " (symbol-name col) "\n"))
+    (while (not go-process-result)
       (accept-process-output go-process 30))
-  (if (string-match "[A-T]+[0-9]+" go-process-result)
-      (progn
-	(setcdr
-	 (assoc color go-stones-alist)
-	 (cons
-	  (intern (match-string 0 go-process-result))
-	  (cdr (assoc color go-stones-alist))))
-	(go-toggle-next-color)
-	(go-board-update))
-    (message (concat "Fail\|" go-process-result "\|"))))
+    (if (string-match "[A-T]+[0-9]+" go-process-result)
+	(progn
+	  (setcdr
+	   (assoc col go-stones-alist)
+	   (cons
+	    (intern (match-string 0 go-process-result))
+	    (cdr (assoc col go-stones-alist))))
+	  (go-toggle-next-color)
+	  (go-board-update))
+      (message (concat "Fail\|" go-process-result "\|")))))
 
 (defvar go-stones-alist nil
   "Stores the moves so far.")
@@ -169,7 +171,8 @@ Set to nil after result has been used.  ")
   (process-send-string
    go-process-buffer
    (concat "list_stones " (symbol-name color) " \n"))
-  (accept-process-output go-process)
+  (while (not go-process-result)
+    (accept-process-output go-process))
   (if go-process-result
       (mapcar				; wrong
        'intern
@@ -267,6 +270,7 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
   (interactive)
   (setq buffer-read-only nil)
   (erase-buffer)
+  (go-stones-refresh-alist)
   (go-board-insert))
 
 (defvar gosvg-mode-map
@@ -274,6 +278,7 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
     (define-key map "g" 'go-board-update)
     (define-key map "k" 'gosvg-cleanup)
     (define-key map "p" 'go-play-stone)
+    (define-key map "m" 'go-genmove)
     map)
   "Keymap for `gosvg-mode'")
 
