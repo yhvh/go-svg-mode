@@ -194,12 +194,12 @@ Set to nil after result has been used.  ")
      (mapcar
       (lambda (el)
 	`(circle :cx ,(number-to-string
-		       (+ 2.5
+		       (+ 2.9
 			  (* 5
 			     (car
 			      (go-symbol-position el)))))
 		 :cy ,(number-to-string
-		       (+ 2.5
+		       (+ 2.9
 			  (* 5
 			     (car (cdr
 				   (go-symbol-position el))))))
@@ -209,12 +209,12 @@ Set to nil after result has been used.  ")
      (mapcar
       (lambda (el)
 	`(circle :cx ,(number-to-string
-		       (+ 2.5
+		       (+ 2.9
 			  (* 5
 			     (car
 			      (go-symbol-position el)))))
 		 :cy ,(number-to-string
-		       (+ 2.5
+		       (+ 2.9
 			  (* 5
 			     (car (cdr
 				   (go-symbol-position el))))))
