@@ -259,6 +259,16 @@ V93 m5,0 V3 m5,0 V93 m5,0 V3")
 	       :d "M18,78 l0,0 m30,0 l0,0
 m30,0 l0,0 m0-30 l0,0 m-30,0 l0,0 m-30,0 l0,0
 m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
+	 (text :x "2.3" :y "94.5" :font-size "2" :font-family "Verdana" "A")
+	 (text :x "7.3" :y "94.5" :font-size "2" :font-family "Verdana" "B")
+	 (text :x "12.3" :y "94.5" :font-size "2" :font-family "Verdana" "C")
+	 (text :x "92.3" :y "94.5" :font-size "2" :font-family "Verdana" "T")
+
+	 (text :x "1" :y "2.9" :font-size "2" :font-family "Verdana" "1")
+	 (text :x "1" :y "7.9" :font-size "2" :font-family "Verdana" "2")
+	 (text :x "1" :y "12.9" :font-size "2" :font-family "Verdana" "3")
+	 (text :x "0.3" :y "92.9" :font-size "2" :font-family "Verdana" "19")
+
 	 (defs
 	   (radialGradient :id "rg" :cx ".3" :cy ".3" :r ".8"
 			   (stop :offset "0" :stop-color "#777")
