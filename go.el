@@ -342,7 +342,10 @@ stones."
     (define-key map "p" 'go-play-stone)
     (define-key map "m" 'go-genmove)
     (define-key map "l" 'go-level-set)
-    (define-key map [D4 mouse-1] 'go-genmove)
+    (define-key map "u" 'go-undo)
+    (dolist (pos go-position-map)
+      (eval
+       `(define-key map (vector (car pos)  'mouse-1) 'go-play-stone)))
     map)
   "Keymap for `gosvg-mode'")
 
