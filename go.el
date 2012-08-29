@@ -130,10 +130,14 @@ Set to nil after result has been used.  ")
       (setq go-level )
     (setq go-boardsize nil)))
 
+(defun go-play-stone-mouse (pos)
+  ""
+  (interactive "e")
+  (go-play-stone  (nth 1 (cadr pos))))
 
 (defun go-play-stone (pos)
   "Plays a stone of COLOR at position POS"
-  (interactive "eSPosition to play: ")
+  (interactive "SPosition to play: ")
   (setq go-process-reply nil)
   (setq go-process-result nil)
   (process-send-string
@@ -141,7 +145,7 @@ Set to nil after result has been used.  ")
    (concat "play "
 	   (symbol-name go-next-color)
 	   " "
-	   (symbol-name (nth 1 (cadr pos)))
+	   (symbol-name pos)
 	   "\n"))
   (while (not go-process-result)
     (accept-process-output go-process))
@@ -350,7 +354,7 @@ stones."
     (define-key map "u" 'go-undo)
     (dolist (pos go-position-map)
       (eval
-       `(define-key map (vector (car pos)  'mouse-1) 'go-play-stone)))
+       `(define-key map (vector (car pos)  'mouse-1) 'go-play-stone-mouse)))
     map)
   "Keymap for `gosvg-mode'")
 
