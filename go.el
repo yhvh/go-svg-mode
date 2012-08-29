@@ -228,7 +228,7 @@ Set to nil after result has been used.  ")
 			     (car (cdr
 				   (go-symbol-position el))))))
 		 :r "2.4"
-		 :fill ,(concat "url(#rg)")))
+		 :fill "url(#rg)"))
       black-positions)
      (mapcar
       (lambda (el)
@@ -243,7 +243,7 @@ Set to nil after result has been used.  ")
 			     (car (cdr
 				   (go-symbol-position el))))))
 		 :r "2.4"
-		 :fill ,(concat "url(#wh)")))
+		 :fill "url(#wh)"))
       white-positions))))
 
 (defun go-vertex-labels ()
