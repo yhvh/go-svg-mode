@@ -141,18 +141,27 @@ Set to nil after result has been used.  ")
    (concat "play "
 	   (symbol-name go-next-color)
 	   " "
-	   (symbol-name pos) "\n"))
-  (accept-process-output go-process)
+	   (symbol-name (nth 1 (cadr pos)))
+	   "\n"))
+  (while (not go-process-result)
+    (accept-process-output go-process))
   (if go-process-result
-      (progn
-	(setcdr
-	 (assoc go-next-color go-stones-alist)
-	 (cons
-	  pos
-	  (cdr (assoc go-next-color go-stones-alist))))
-	(go-toggle-next-color)
-	(go-board-update))
-    nil))
+      (go-toggle-next-color))
+  (go-board-update))
+
+(defun go-undo ()
+  "Undos one move."
+  (interactive)
+  (setq go-process-reply nil)
+  (setq go-process-result nil)
+  (process-send-string
+   go-process-buffer "undo\n")
+  (while (not go-process-result)
+    (accept-process-output go-process))
+  (if go-process-result
+      (go-toggle-next-color))
+  (go-board-update))
+
 
 (defun go-genmove (&optional color)
   "Generate and play the supposed best move for COLOR."
