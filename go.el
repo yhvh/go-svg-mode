@@ -301,8 +301,12 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
 			   (stop :offset "1" :stop-color "#FFF")))
 	 ,@(go-stones))))
 
-(defun go-pos-offset ()
-  (/ go-img-size go-boardsize))
+(defun go-pos-pixel-offset (number)
+  (let ((padding (/ (/ go-img-size go-boardsize) 2)))
+    (+ (+ padding (/ padding 2))
+       (* 18
+	  (/ (- go-img-size padding)
+	     go-boardsize)))))
 
 (defun go-mouse-event-circles ()
   "Returns a plist of circles at positions which are free of
@@ -313,8 +317,9 @@ stones."
 	  (or
 	   (member (car el) (cdr (assoc 'black go-stones-alist)))
 	   (member (car el) (cdr (assoc 'white go-stones-alist)))))
-	 `((circle . (( ,(* (go-pos-offset) (cadr el)) .
-			,(* (go-pos-offset) (car (cddr el)))) . 10))
+	 `((circle . (( ,(* (go-pos-pixel-offset (cadr el))) .
+			,(* (go-pos-pixel-offset (car (cddr el))))) .
+			,(/ (/ go-img-size go-boardsize) 2)))
 	   ,(car el) ; event name eg. [D4 mouse-1]
 	   (pointer hand))))
    go-position-map))
