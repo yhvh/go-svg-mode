@@ -304,7 +304,7 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
 (defun go-pos-pixel-offset (number)
   (let ((padding (/ (/ go-img-size go-boardsize) 2)))
     (+ (+ padding (/ padding 2))
-       (* 18
+       (* number
 	  (/ (- go-img-size padding)
 	     go-boardsize)))))
 
