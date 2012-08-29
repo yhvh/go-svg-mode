@@ -133,7 +133,7 @@ Set to nil after result has been used.  ")
 
 (defun go-play-stone (pos)
   "Plays a stone of COLOR at position POS"
-  (interactive "SPosition to play: ")
+  (interactive "eSPosition to play: ")
   (setq go-process-reply nil)
   (setq go-process-result nil)
   (process-send-string
