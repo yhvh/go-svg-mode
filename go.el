@@ -197,23 +197,26 @@ Set to nil after result has been used.  ")
   (setq go-process-reply nil)
   (setq go-process-result nil)
   (let ((col (or color go-next-color)))
-    (process-send-string
-     go-process-buffer
-     (concat "genmove " (symbol-name col) "\n"))
-    (while (not go-process-result)
-      (accept-process-output go-process))
-    (cond
-     ((string-match "^?" go-process-result)
-      (go-error))
-     ((string-match "[A-T]+[0-9]+" go-process-result)
-      (progn
-	(setcdr
-	 (assoc col go-stones-alist)
-	 (cons
-	  (intern (match-string 0 go-process-result))
-	  (cdr (assoc col go-stones-alist))))
-	(go-toggle-next-color)
-	(go-board-update))))))
+    (with-temp-message "gnugo is thinking…"
+      (process-send-string
+       go-process-buffer
+       (concat "genmove " (symbol-name col) "\n"))
+      (while (not go-process-result)
+	(accept-process-output go-process))
+      (cond
+       ((string-match "^?" go-process-result)
+	(go-error))
+       ((string-match "PASS" go-process-result)
+	(message "PASS"))
+       ((string-match "[A-T]+[0-9]+" go-process-result)
+	(progn
+	  (setcdr
+	   (assoc col go-stones-alist)
+	   (cons
+	    (intern (match-string 0 go-process-result))
+	    (cdr (assoc col go-stones-alist))))
+	  (go-toggle-next-color)
+	  (go-board-update)))))))
 
 (defun go-last-move ()
   "Return color and vertex of last move. "
@@ -245,11 +248,14 @@ Set to nil after result has been used.  ")
    (concat "list_stones " (symbol-name color) " \n"))
   (while (not go-process-result)
     (accept-process-output go-process))
-  (if go-process-result
-      (mapcar				; wrong
-       'intern
-       (split-string (substring go-process-result 1)))
-    nil))
+  (cond
+   ((string-match "^?" go-process-result)
+    (go-error))
+   ((string-match "\\([A-T][0-9]+\\)" go-process-result)
+    (mapcar
+     'intern
+     (split-string (substring go-process-result 1))))
+   (t nil)))
 
 (defun go-stones-refresh-alist ()
   "Returns a list of all stones on board in the form
@@ -297,36 +303,37 @@ Set to nil after result has been used.  ")
 (defun go-last-move-marker ()
   "Returns a marker for last played stone."
   (let ((last-move (go-last-move)))
-    `((circle :cx ,(number-to-string
-		   (+ 2.9
-		      (* 5
-			 (car (go-symbol-position (car last-move))))))
-	     :cy ,(number-to-string
-		   (+ 2.9
-		      (* 5
-			 (cadr (go-symbol-position (car last-move))))))
-	     :r "1"
-	     :fill "red"))))
+    (if last-move
+	`((circle :cx ,(number-to-string
+			(+ 2.9
+			   (* 5
+			      (car (go-symbol-position (car last-move))))))
+		  :cy ,(number-to-string
+			(+ 2.9
+			   (* 5
+			      (cadr (go-symbol-position (car last-move))))))
+		  :r "1"
+		  :fill "red")))))
 
 (defun go-vertex-labels ()
   "Returns a list of vertex labels for go board"
   (append (mapcar
-	 (lambda (el)
-	   `(text :x ,(number-to-string (+ 2.3 (* 5 el)))
-	      :y "94.5"
-	      :font-size "2"
-	      :font-family "Verdana"
-	      ,(char-to-string (if (> 8 el) (+ 65 el) (+ 66 el)))))
-     `(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18))
+	   (lambda (el)
+	     `(text :x ,(number-to-string (+ 2.3 (* 5 el)))
+		    :y "94.5"
+		    :font-size "2"
+		    :font-family "Verdana"
+		    ,(char-to-string (if (> 8 el) (+ 65 el) (+ 66 el)))))
+	   `(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18))
 
-    (mapcar
-       (lambda (el)
-	 `(text :x ,(if (> 9 el) "1" "0.3")
-		:y ,(number-to-string (+ 2.9 (* 5 el)))
-		:font-size "2"
-		:font-family "Verdana"
-		,(number-to-string (1+ el))))
-       `(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18))))
+	  (mapcar
+	   (lambda (el)
+	     `(text :x ,(if (> 9 el) "1" "0.3")
+		    :y ,(number-to-string (+ 2.9 (* 5 el)))
+		    :font-size "2"
+		    :font-family "Verdana"
+		    ,(number-to-string (1+ el))))
+	   `(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18))))
 
 (defun go-img-string ()
   "Returns a svg string for game image"
@@ -434,8 +441,7 @@ stones."
   (switch-to-buffer (get-buffer-create "gosvg"))
   (gosvg-mode)
   (go-start-process)
-  (go-board-insert)
-  )
+  (go-board-update))
 
 (defun gosvg-cleanup ()
   "Kills processes and buffers used"
