@@ -135,9 +135,21 @@ Set to nil after result has been used.  ")
       (setq go-level (intern level))
     (setq go-level nil)))
 
+(defun go-estimate-score ()
+  "Estimate score, gtp command"
+  (interactive "sSet Go level to: ")
+  (setq go-process-reply nil)
+  (setq go-process-result nil)
+  (process-send-string
+   go-process-buffer
+   "estimate_score\n")
+  (while (not go-process-result)
+    (accept-process-output go-process))
+  (if go-process-result
+      (message go-process-result)))
 
 (defun go-play-stone-mouse (pos)
-  ""
+  "Calls `go-play-stone' from mouse click on board."
   (interactive "e")
   (go-play-stone  (nth 1 (cadr pos))))
 
