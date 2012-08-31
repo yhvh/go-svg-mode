@@ -172,7 +172,9 @@ Set to nil after result has been used.  ")
     (go-error))
    (go-process-result
     (go-toggle-next-color)
-    (go-board-update))
+    (go-board-update)
+    (sit-for 0.1)
+    (go-genmove))
    (t
     (message (concat "Fail\|" go-process-result "\|")))))
 
