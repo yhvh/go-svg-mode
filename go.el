@@ -3,7 +3,8 @@
 ;; Copyright (C) 2012 William Stevenson
 
 ;; Author: William Stevenson <yhvh2000@gmail.com>
-;; Version: 0.4
+;; Version: 0.1
+;; Package-Requires: ((xml-gen "0.4"))
 
 ;; This file is not currently part of GNU Emacs.
 
@@ -23,8 +24,6 @@
 ;; Boston, MA 02111-1307, USA.
 
 ;;; Commentary:
-;; depends on xmlgen https://github.com/philjackson/xmlgen
-(require 'xmlgen)
 
 (defgroup go-svg nil
   "Top level for go-svg customization.")
