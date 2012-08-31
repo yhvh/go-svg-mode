@@ -200,6 +200,23 @@ Set to nil after result has been used.  ")
 	(go-toggle-next-color)
 	(go-board-update))))))
 
+(defun go-last-move ()
+  "Return color and vertex of last move. "
+  (interactive)
+  (setq go-process-reply nil)
+  (setq go-process-result nil)
+  (process-send-string
+   go-process-buffer
+   "last_move\n")
+  (while (not go-process-result)
+    (accept-process-output go-process))
+  (cond
+   ((string-match "^?" go-process-result)
+    (go-error))
+   ((string-match "\\(black\\|white\\) \\([A-T][0-9]+\\)" go-process-result)
+    `(
+     ,(intern (match-string 2 go-process-result))
+     ,(intern (match-string 1 go-process-result))))))
 
 (defvar go-stones-alist nil
   "Stores the moves so far.")
@@ -262,6 +279,20 @@ Set to nil after result has been used.  ")
 		 :fill "url(#wh)"))
       white-positions))))
 
+(defun go-last-move-marker ()
+  "Returns a marker for last played stone."
+  (let ((last-move (go-last-move)))
+    `((circle :cx ,(number-to-string
+		   (+ 2.9
+		      (* 5
+			 (car (go-symbol-position (car last-move))))))
+	     :cy ,(number-to-string
+		   (+ 2.9
+		      (* 5
+			 (cadr (go-symbol-position (car last-move))))))
+	     :r "1"
+	     :fill "red"))))
+
 (defun go-vertex-labels ()
   "Returns a list of vertex labels for go board"
   (append (mapcar
@@ -315,7 +346,8 @@ m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
 			   (stop :offset "0" :stop-color "#FEE")
 			   (stop :offset ".3" :stop-color "#DDD")
 			   (stop :offset "1" :stop-color "#FFF")))
-	 ,@(go-stones))))
+	 ,@(go-stones)
+	 ,@(go-last-move-marker))))
 
 (defun go-pos-pixel-offset (number)
   (let ((padding (/ (/ go-img-size go-boardsize) 2)))
