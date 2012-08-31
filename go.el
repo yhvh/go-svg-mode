@@ -324,7 +324,7 @@ Set to nil after result has been used.  ")
 		    :font-size "2"
 		    :font-family "Verdana"
 		    ,(char-to-string (if (> 8 el) (+ 65 el) (+ 66 el)))))
-	   `(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18))
+	   (number-sequence 0 18))
 
 	  (mapcar
 	   (lambda (el)
@@ -333,7 +333,7 @@ Set to nil after result has been used.  ")
 		    :font-size "2"
 		    :font-family "Verdana"
 		    ,(number-to-string (1+ el))))
-	   `(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18))))
+	   (number-sequence 0 18))))
 
 (defun go-img-string ()
   "Returns a svg string for game image"
