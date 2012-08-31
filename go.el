@@ -122,7 +122,7 @@ Set to nil after result has been used.  ")
     (setq go-boardsize nil)))
 
 (defun go-level-set (level)
-  "Set boardsize to SIZE and clear the board"
+  "Set level to LEVEL."
   (interactive "sSet Go level to: ")
   (setq go-process-reply nil)
   (setq go-process-result nil)
@@ -132,8 +132,9 @@ Set to nil after result has been used.  ")
   (while (not go-process-result)
     (accept-process-output go-process))
   (if go-process-result
-      (setq go-level )
-    (setq go-boardsize nil)))
+      (setq go-level (intern level))
+    (setq go-level nil)))
+
 
 (defun go-play-stone-mouse (pos)
   ""
