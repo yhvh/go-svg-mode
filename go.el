@@ -241,8 +241,8 @@ Set to nil after result has been used.  ")
 		 :cy ,(number-to-string
 		       (+ 2.9
 			  (* 5
-			     (car (cdr
-				   (go-symbol-position el))))))
+			     (cadr
+			      (go-symbol-position el)))))
 		 :r "2.4"
 		 :fill "url(#rg)"))
       black-positions)
@@ -256,8 +256,8 @@ Set to nil after result has been used.  ")
 		 :cy ,(number-to-string
 		       (+ 2.9
 			  (* 5
-			     (car (cdr
-				   (go-symbol-position el))))))
+			     (cadr
+			      (go-symbol-position el)))))
 		 :r "2.4"
 		 :fill "url(#wh)"))
       white-positions))))
