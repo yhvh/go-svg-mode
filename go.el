@@ -91,6 +91,11 @@ Set to nil after result has been used.  ")
 	  (setq go-process-result result-tmp))
       (setq go-process-reply result-tmp))))
 
+(defun go-error ()
+  "Handles gtp errors"
+  (message (replace-regexp-in-string "\n" "" go-process-result))
+  (go-board-update))
+
 (defun go-start-process ()
   "Starts the go gtp process"
   (setq go-process nil)
@@ -125,7 +130,7 @@ Set to nil after result has been used.  ")
    go-process-buffer
    (concat "level " level "\n"))
   (while (not go-process-result)
-    (accept-process-output go-process 30))
+    (accept-process-output go-process))
   (if go-process-result
       (setq go-level )
     (setq go-boardsize nil)))
@@ -149,9 +154,14 @@ Set to nil after result has been used.  ")
 	   "\n"))
   (while (not go-process-result)
     (accept-process-output go-process))
-  (if go-process-result
-      (go-toggle-next-color))
-  (go-board-update))
+  (cond
+   ((string-match "^?" go-process-result)
+    (go-error))
+   (go-process-result
+    (go-toggle-next-color)
+    (go-board-update))
+   (t
+    (message (concat "Fail\|" go-process-result "\|")))))
 
 (defun go-undo ()
   "Undos one move."
@@ -166,7 +176,6 @@ Set to nil after result has been used.  ")
       (go-toggle-next-color))
   (go-board-update))
 
-
 (defun go-genmove (&optional color)
   "Generate and play the supposed best move for COLOR."
   (interactive)
@@ -177,17 +186,20 @@ Set to nil after result has been used.  ")
      go-process-buffer
      (concat "genmove " (symbol-name col) "\n"))
     (while (not go-process-result)
-      (accept-process-output go-process 30))
-    (if (string-match "[A-T]+[0-9]+" go-process-result)
-	(progn
-	  (setcdr
-	   (assoc col go-stones-alist)
-	   (cons
-	    (intern (match-string 0 go-process-result))
-	    (cdr (assoc col go-stones-alist))))
-	  (go-toggle-next-color)
-	  (go-board-update))
-      (message (concat "Fail\|" go-process-result "\|")))))
+      (accept-process-output go-process))
+    (cond
+     ((string-match "^?" go-process-result)
+      (go-error))
+     ((string-match "[A-T]+[0-9]+" go-process-result)
+      (progn
+	(setcdr
+	 (assoc col go-stones-alist)
+	 (cons
+	  (intern (match-string 0 go-process-result))
+	  (cdr (assoc col go-stones-alist))))
+	(go-toggle-next-color)
+	(go-board-update))))))
+
 
 (defvar go-stones-alist nil
   "Stores the moves so far.")
