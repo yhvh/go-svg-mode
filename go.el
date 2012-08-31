@@ -341,8 +341,9 @@ stones."
    go-position-map))
 
 (defun go-board-insert ()
-  "Insert go board svg image at cursor pos"
+  "Insert go board svg image."
   (setq buffer-read-only nil)
+  (erase-buffer)
   (insert-image
    (create-image (go-img-string) 'svg t
 		 :map (go-mouse-event-circles)))
@@ -351,8 +352,6 @@ stones."
 (defun go-board-update ()
   "Updates the go board image"
   (interactive)
-  (setq buffer-read-only nil)
-  (erase-buffer)
   (go-stones-refresh-alist)
   (go-board-insert))
 
