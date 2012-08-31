@@ -227,11 +227,11 @@ Set to nil after result has been used.  ")
     (accept-process-output go-process))
   (cond
    ((string-match "^?" go-process-result)
-    (go-error))
+    nil)
    ((string-match "\\(black\\|white\\) \\([A-T][0-9]+\\)" go-process-result)
-    `(
-     ,(intern (match-string 2 go-process-result))
-     ,(intern (match-string 1 go-process-result))))))
+    `(,(intern (match-string 2 go-process-result))
+      ,(intern (match-string 1 go-process-result))))
+   (t nil)))
 
 (defvar go-stones-alist nil
   "Stores the moves so far.")
