@@ -219,6 +219,7 @@ Set to nil after result has been used.  ")
      ((string-match "^?" go-process-result)
       (go-error))
      ((string-match "PASS" go-process-result)
+      (go-toggle-next-color)
       (message "PASS"))
      ((string-match "[A-T]+[0-9]+" go-process-result)
       (progn
