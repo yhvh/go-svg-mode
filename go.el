@@ -210,21 +210,21 @@ Set to nil after result has been used.  ")
        go-process-buffer
        (concat "genmove " (symbol-name col) "\n"))
       (while (not go-process-result)
-	(accept-process-output go-process))
-      (cond
-       ((string-match "^?" go-process-result)
-	(go-error))
-       ((string-match "PASS" go-process-result)
-	(message "PASS"))
-       ((string-match "[A-T]+[0-9]+" go-process-result)
-	(progn
-	  (setcdr
-	   (assoc col go-stones-alist)
-	   (cons
-	    (intern (match-string 0 go-process-result))
-	    (cdr (assoc col go-stones-alist))))
-	  (go-toggle-next-color)
-	  (go-board-update)))))))
+	(accept-process-output go-process)))
+    (cond
+     ((string-match "^?" go-process-result)
+      (go-error))
+     ((string-match "PASS" go-process-result)
+      (message "PASS"))
+     ((string-match "[A-T]+[0-9]+" go-process-result)
+      (progn
+	(setcdr
+	 (assoc col go-stones-alist)
+	 (cons
+	  (intern (match-string 0 go-process-result))
+	  (cdr (assoc col go-stones-alist))))
+	(go-toggle-next-color)
+	(go-board-update))))))
 
 (defun go-last-move ()
   "Return color and vertex of last move. "
