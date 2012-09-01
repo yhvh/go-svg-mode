@@ -310,7 +310,7 @@ Set to nil after result has been used.  ")
 		  :cy ,(number-to-string
 			(go-pos-pixel-offset
 			 (cadr (go-symbol-position (car last-move)))))
-		  :r ,(number-to-string (/ (/ go-img-size go-boardsize) 4))
+		  :r ,(number-to-string (/ (/ go-img-size go-boardsize) 5))
 		  :fill "red")))))
 
 (defun go-vertex-labels ()
@@ -322,7 +322,7 @@ Set to nil after result has been used.  ")
 		    :font-size "11"
 		    :font-family "Verdana"
 		    ,(char-to-string (if (> 8 el) (+ 65 el) (+ 66 el)))))
-	   (number-sequence 0 18))
+	   (number-sequence 0 (- go-boardsize 1)))
 
 	  (mapcar
 	   (lambda (el)
@@ -331,7 +331,7 @@ Set to nil after result has been used.  ")
 		    :font-size "11"
 		    :font-family "Verdana"
 		    ,(number-to-string (1+ el))))
-	   (number-sequence 0 18))))
+	   (number-sequence 0 (- go-boardsize 1)))))
 
 (defun go-board-svg ()
 "Returns the svg to draw the board"
@@ -354,7 +354,7 @@ Set to nil after result has been used.  ")
 			  (go-pos-pixel-offset (- go-boardsize 1)))
 		  (format "M %d,%d V%d " (go-pos-pixel-offset el) padding
 			  (go-pos-pixel-offset (- go-boardsize 1)))))
-	       (number-sequence 1 go-boardsize)
+	       (number-sequence 1 (- go-boardsize 1))
 	       ""))
 
     (path :stroke "#000" :stroke-width "2"
