@@ -123,7 +123,8 @@ Set to nil after result has been used.  ")
    ((string-match "^?" go-process-result)
     (go-error))
    (go-process-result
-    (setq go-boardsize size))
+    (setq go-boardsize size)
+    (go-board-update))
    (t nil)))
 
 (defun go-level-set (level)
