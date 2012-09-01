@@ -451,13 +451,3 @@ stones."
   (go-kill-process)
   (kill-buffer go-process-buffer)
   (kill-buffer "gosvg"))
-
-(defun go-test ()
-  "Test go-svg"
-    (go-genmove 'black)
-    (go-genmove 'white))
-
-(defun go-test-continue ()
-  "Test go-svg"
-    (go-genmove 'black)
-    (go-genmove 'white))
