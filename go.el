@@ -280,7 +280,10 @@ Set to nil after result has been used.  ")
 (defun go-stones ()
   "Returns a list of circle S-expressions for splicing into svg."
   (let ((black-positions (cdr (assoc 'black go-stones-alist)))
-	(white-positions (cdr (assoc 'white go-stones-alist))))
+	(white-positions (cdr (assoc 'white go-stones-alist)))
+	(stone-radius (number-to-string
+		       (/ (- (go-pos-pixel-offset 1)
+			     (go-pos-pixel-offset 0)) 2))))
     (append
      (mapcar
       (lambda (el)
@@ -290,7 +293,7 @@ Set to nil after result has been used.  ")
 		 :cy ,(number-to-string
 		       (go-pos-pixel-offset
 			(cadr (go-symbol-position el))))
-		 :r ,(number-to-string (/ (/ go-img-size go-boardsize) 2))
+		 :r ,stone-radius
 		 :fill "url(#rg)"))
       black-positions)
      (mapcar
@@ -301,7 +304,7 @@ Set to nil after result has been used.  ")
 		 :cy ,(number-to-string
 		       (go-pos-pixel-offset
 			(cadr (go-symbol-position el))))
-		 :r ,(number-to-string (/ (/ go-img-size go-boardsize) 2))
+		 :r ,stone-radius
 		 :fill "url(#wh)"))
       white-positions))))
 
