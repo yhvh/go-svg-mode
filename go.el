@@ -271,31 +271,23 @@ Set to nil after result has been used.  ")
      (mapcar
       (lambda (el)
 	`(circle :cx ,(number-to-string
-		       (+ 2.9
-			  (* 5
-			     (car
-			      (go-symbol-position el)))))
+		       (go-pos-pixel-offset
+			(car (go-symbol-position el))))
 		 :cy ,(number-to-string
-		       (+ 2.9
-			  (* 5
-			     (cadr
-			      (go-symbol-position el)))))
-		 :r "2.4"
+		       (go-pos-pixel-offset
+			(cadr (go-symbol-position el))))
+		 :r ,(number-to-string (/ (/ go-img-size go-boardsize) 2))
 		 :fill "url(#rg)"))
       black-positions)
      (mapcar
       (lambda (el)
 	`(circle :cx ,(number-to-string
-		       (+ 2.9
-			  (* 5
-			     (car
-			      (go-symbol-position el)))))
+		       (go-pos-pixel-offset
+			(car (go-symbol-position el))))
 		 :cy ,(number-to-string
-		       (+ 2.9
-			  (* 5
-			     (cadr
-			      (go-symbol-position el)))))
-		 :r "2.4"
+		       (go-pos-pixel-offset
+			(cadr (go-symbol-position el))))
+		 :r ,(number-to-string (/ (/ go-img-size go-boardsize) 2))
 		 :fill "url(#wh)"))
       white-positions))))
 
@@ -304,35 +296,61 @@ Set to nil after result has been used.  ")
   (let ((last-move (go-last-move)))
     (if last-move
 	`((circle :cx ,(number-to-string
-			(+ 2.9
-			   (* 5
-			      (car (go-symbol-position (car last-move))))))
+			(go-pos-pixel-offset
+			 (car (go-symbol-position (car last-move)))))
 		  :cy ,(number-to-string
-			(+ 2.9
-			   (* 5
-			      (cadr (go-symbol-position (car last-move))))))
-		  :r "1"
+			(go-pos-pixel-offset
+			 (cadr (go-symbol-position (car last-move)))))
+		  :r ,(number-to-string (/ (/ go-img-size go-boardsize) 4))
 		  :fill "red")))))
 
 (defun go-vertex-labels ()
   "Returns a list of vertex labels for go board"
   (append (mapcar
 	   (lambda (el)
-	     `(text :x ,(number-to-string (+ 2.3 (* 5 el)))
-		    :y "94.5"
-		    :font-size "2"
+	     `(text :x ,(number-to-string (go-pos-pixel-offset el))
+		    :y ,(number-to-string (+ (go-pos-pixel-offset 0) (go-pos-pixel-offset (- go-boardsize 1))))
+		    :font-size "11"
 		    :font-family "Verdana"
 		    ,(char-to-string (if (> 8 el) (+ 65 el) (+ 66 el)))))
 	   (number-sequence 0 18))
 
 	  (mapcar
 	   (lambda (el)
-	     `(text :x ,(if (> 9 el) "1" "0.3")
-		    :y ,(number-to-string (+ 2.9 (* 5 el)))
-		    :font-size "2"
+	     `(text :x ,(if (> 9 el) "6" "1")
+		    :y ,(number-to-string (go-pos-pixel-offset el))
+		    :font-size "11"
 		    :font-family "Verdana"
 		    ,(number-to-string (1+ el))))
 	   (number-sequence 0 18))))
+
+(defun go-board-svg ()
+"Returns the svg to draw the board"
+(let ((padding (go-pos-pixel-offset 0)))
+  `((rect :width ,go-img-size :height ,go-img-size :fill "#DCB35C")
+    (path :stroke "#000" :stroke-width "1" :fill "none"
+	  :d ,(concat
+	       (format "M %d,%d H%d " padding padding (go-pos-pixel-offset (- go-boardsize 1)))
+	       (format "M %d,%d V%d " padding padding (go-pos-pixel-offset (- go-boardsize 1)))
+	       (format "M %d,%d H%d " padding (go-pos-pixel-offset (- go-boardsize 1))
+		       (go-pos-pixel-offset (- go-boardsize 1)))
+	       (format "M %d,%d V%d " (go-pos-pixel-offset (- go-boardsize 1)) padding
+		       (go-pos-pixel-offset (- go-boardsize 1)))
+	       ))
+    (path :stroke "#000" :stroke-width "0.7" :fill "none"
+	  :d ,(mapconcat
+	       (lambda (el)
+		 (concat
+		  (format "M %d,%d H%d " padding (go-pos-pixel-offset el)
+			  (go-pos-pixel-offset (- go-boardsize 1)))
+		  (format "M %d,%d V%d " (go-pos-pixel-offset el) padding
+			  (go-pos-pixel-offset (- go-boardsize 1)))))
+	       (number-sequence 1 go-boardsize)
+	       ""))
+
+    (path :stroke "#000" :stroke-width "2"
+	  :stroke-linecap "round"
+	  :d (concat (format ""))))))
 
 (defun go-img-string ()
   "Returns a svg string for game image"
@@ -340,24 +358,9 @@ Set to nil after result has been used.  ")
    `(svg :xmlns "http://www.w3.org/2000/svg"
 	 :width ,(number-to-string go-img-size)
 	 :height ,(number-to-string go-img-size)
-	 :encoding "UTF-8" :viewBox "0 0 96 96"
-	 (rect :width "114" :height "114" :fill "#DCB35C")
-	 (path :stroke "#000" :stroke-width ".2" :fill "none"
-	       :d "M2.9,93 h90.2 m-.2-5 H3 m0-5
-h90 m0-5 H3 m0-5 h90 m0-5 H3 m0-5 h90 m0-5 H3
-m0-5 h90 m0-5 H3 m0-5 h90 m0-5 H3 m0-5 h90 m0-5
-H3 m0-5 h90 m0-5 H3 m0-5 h90 m0-5 H3 m-.1-5 h90.2
-M3,3 V93 m5,0 V3 m5,0 V93 m5,0 V3 m5,0 V93 m5,0
-V3 m5,0 V93 m5,0 V3 m5,0 V93 m5,0 V3 m5,0 V93
-m5,0 V3 m5,0 V93 m5,0 V3 m5,0 V93 m5,0 V3 m5,0
-V93 m5,0 V3 m5,0 V93 m5,0 V3")
-	 (path :stroke "#000" :stroke-width "2"
-	       :stroke-linecap "round"
-	       :d "M18,78 l0,0 m30,0 l0,0
-m30,0 l0,0 m0-30 l0,0 m-30,0 l0,0 m-30,0 l0,0
-m0-30 l0,0 m30,0 l0,0 m30,0 l0,0")
+	 :encoding "UTF-8"
+	 ,@(go-board-svg)
 	 ,@(go-vertex-labels)
-
 	 (defs
 	   (radialGradient :id "rg" :cx ".3" :cy ".3" :r ".8"
 			   (stop :offset "0" :stop-color "#777")
