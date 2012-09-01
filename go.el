@@ -310,7 +310,10 @@ Set to nil after result has been used.  ")
 
 (defun go-last-move-marker ()
   "Returns a marker for last played stone."
-  (let ((last-move (go-last-move)))
+  (let ((last-move (go-last-move))
+	(marker-radius (number-to-string
+		       (/ (- (go-pos-pixel-offset 1)
+			     (go-pos-pixel-offset 0)) 5))))
     (if last-move
 	`((circle :cx ,(number-to-string
 			(go-pos-pixel-offset
@@ -318,7 +321,7 @@ Set to nil after result has been used.  ")
 		  :cy ,(number-to-string
 			(go-pos-pixel-offset
 			 (cadr (go-symbol-position (car last-move)))))
-		  :r ,(number-to-string (/ (/ go-img-size go-boardsize) 5))
+		  :r ,marker-radius
 		  :fill "red")))))
 
 (defun go-vertex-labels ()
