@@ -38,15 +38,18 @@
   :type '(string)
   :group 'go-svg)
 
-(defvar go-boardsize 19)
-(defvar go-level 1)
-(defvar go-img-size 300)
-(defvar go-process-buffer "*gnugo*" )
+(defvar go-boardsize 19 "Holds the current boardsize")
+(defvar go-level 1 "Holds the current computer level, the amount
+of time gnugo will spend thinking about the next move")
+(defvar go-img-size 300 "The size of the svg image of the game")
+(defvar go-process-buffer "*gnugo*" "The buffer that the go
+process is associated with")
 
 (defvar go-next-color 'white
   "Holds the next stone color to be played.")
 
 (defun go-toggle-next-color ()
+  "Toggles next stone color to be played."
   (if (eq go-next-color 'black)
       (setq go-next-color 'white)
     (setq go-next-color 'black)))
@@ -106,7 +109,7 @@ Set to nil after result has been used.  ")
   (set-process-filter go-process 'go-filter-function))
 
 (defun go-kill-process ()
-  (setq go-stones-alist '((black) (white)))
+  "Kills the go-process associated with this game."
   (delete-process go-process))
 
 (defun go-boardsize-set (size)
@@ -188,7 +191,7 @@ Set to nil after result has been used.  ")
     (message (concat "Fail\|" go-process-result "\|")))))
 
 (defun go-undo ()
-  "Undos one move."
+  "Undoes one move."
   (interactive)
   (setq go-process-reply nil)
   (setq go-process-result nil)
@@ -384,6 +387,7 @@ Set to nil after result has been used.  ")
 	 ,@(go-last-move-marker))))
 
 (defun go-pos-pixel-offset (number)
+  "Returns a pixel position for go board position"
   (let ((padding (/ (/ go-img-size go-boardsize) 2)))
     (+ (+ padding (/ padding 2))
        (* number
