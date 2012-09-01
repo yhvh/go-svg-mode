@@ -128,17 +128,20 @@ Set to nil after result has been used.  ")
 
 (defun go-level-set (level)
   "Set level to LEVEL."
-  (interactive "sSet Go level to: ")
+  (interactive "nSet Go level to: ")
   (setq go-process-reply nil)
   (setq go-process-result nil)
   (process-send-string
    go-process-buffer
-   (concat "level " level "\n"))
+   (concat "level " (number-to-string level) "\n"))
   (while (not go-process-result)
     (accept-process-output go-process))
-  (if go-process-result
-      (setq go-level (intern level))
-    (setq go-level nil)))
+  (cond
+   ((string-match "^?" go-process-result)
+    (go-error))
+   (go-process-result
+    (setq go-level level))
+   (t nil)))
 
 (defun go-estimate-score ()
   "Estimate score, gtp command"
@@ -439,6 +442,8 @@ stones."
   (make-local-variable 'go-process-result)
   (make-local-variable 'go-process-reply)
   (make-local-variable 'go-next-color)
+  (make-local-variable 'go-boardsize)
+  (make-local-variable 'go-level)
   (let ((win-size (window-inside-absolute-pixel-edges)))
     (setq go-img-size (min (- (nth 2 win-size) (nth 0 win-size))
 			   (- (nth 3 win-size) (nth 1 win-size)))))
