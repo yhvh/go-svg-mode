@@ -39,6 +39,7 @@
   :group 'go-svg)
 
 (defvar go-boardsize 19)
+(defvar go-level 1)
 (defvar go-img-size 300)
 (defvar go-process-buffer "*gnugo*" )
 
@@ -110,15 +111,20 @@ Set to nil after result has been used.  ")
 
 (defun go-boardsize-set (size)
   "Set boardsize to SIZE and clear the board"
+  (interactive "nSet boardsize to: ")
   (setq go-process-reply nil)
   (setq go-process-result nil)
   (process-send-string
    go-process-buffer
    (concat "boardsize " (number-to-string size) "\n"))
-  (accept-process-output go-process)
-  (if go-process-reply
-      (setq go-boardsize size)
-    (setq go-boardsize nil)))
+  (while (not go-process-result)
+    (accept-process-output go-process))
+  (cond
+   ((string-match "^?" go-process-result)
+    (go-error))
+   (go-process-result
+    (setq go-boardsize size))
+   (t nil)))
 
 (defun go-level-set (level)
   "Set level to LEVEL."
@@ -418,6 +424,7 @@ stones."
     (define-key map "p" 'go-play-stone)
     (define-key map "m" 'go-genmove)
     (define-key map "l" 'go-level-set)
+    (define-key map "b" 'go-boardsize-set)
     (define-key map "u" 'go-undo)
     (dolist (pos go-position-map)
       (eval
