@@ -45,6 +45,9 @@ of time gnugo will spend thinking about the next move")
 (defvar go-process-buffer "*gnugo*" "The buffer that the go
 process is associated with")
 
+(defvar go-last-move-was-pass nil
+  "Non-nil if last move was a pass.")
+
 (defvar go-next-color 'white
   "Holds the next stone color to be played.")
 
@@ -160,6 +163,28 @@ Set to nil after result has been used.  ")
   (if go-process-result
       (message go-process-result)))
 
+(defun go-final-score ()
+  "Show final score."
+  (interactive)
+  (setq go-process-reply nil
+	go-process-result nil)
+  (process-send-string
+   go-process-buffer
+   "final_score\n")
+  (while (not go-process-result)
+    (accept-process-output go-process))
+  (if go-process-result
+      (message go-process-result)))
+
+(defun go-play-pass ()
+  "Calls `go-play-stone' with pass for current color.
+If the last move was also a pass the game is over and the final
+score is shown."
+  (interactive)
+  (if go-last-move-was-pass
+      (go-final-score)
+    (go-play-stone 'pass)))
+
 (defun go-play-stone-mouse (pos)
   "Calls `go-play-stone' from mouse click on board."
   (interactive "e")
@@ -184,11 +209,13 @@ Set to nil after result has been used.  ")
     (go-error))
    (go-process-result
     (go-toggle-next-color)
+    (if (equal pos 'pass)
+	(setq go-last-move-was-pass t)
+      (setq go-last-move-was-pass nil))
     (go-board-update)
     (sit-for 0.1)
     (go-genmove))
-   (t
-    (message (concat "Fail\|" go-process-result "\|")))))
+   (t nil)))
 
 (defun go-undo ()
   "Undoes one move."
@@ -219,6 +246,7 @@ Set to nil after result has been used.  ")
      ((string-match "^?" go-process-result)
       (go-error))
      ((string-match "PASS" go-process-result)
+      (setq go-last-move-was-pass t)
       (go-toggle-next-color)
       (message "PASS"))
      ((string-match "[A-T]+[0-9]+" go-process-result)
@@ -437,10 +465,12 @@ stones."
     (define-key map "g" 'go-board-update)
     (define-key map "k" 'gosvg-cleanup)
     (define-key map "p" 'go-play-stone)
+    (define-key map "P" 'go-play-pass)
     (define-key map "m" 'go-genmove)
     (define-key map "l" 'go-level-set)
     (define-key map "b" 'go-boardsize-set)
     (define-key map "u" 'go-undo)
+    (define-key map "F" 'go-final-score)
     (dolist (pos go-position-map)
       (eval
        `(define-key map (vector (car pos)  'mouse-1) 'go-play-stone-mouse)))
@@ -455,6 +485,8 @@ stones."
   (make-local-variable 'go-process-reply)
   (make-local-variable 'go-next-color)
   (make-local-variable 'go-boardsize)
+  (make-local-variable 'go-level)
+  (make-local-variable 'go-last-move-was-pass)
   (make-local-variable 'go-level)
   (let ((win-size (window-inside-absolute-pixel-edges)))
     (setq go-img-size (min (- (nth 2 win-size) (nth 0 win-size))
