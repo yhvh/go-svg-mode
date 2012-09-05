@@ -48,7 +48,7 @@ process is associated with")
 (defvar go-last-move-was-pass nil
   "Non-nil if last move was a pass.")
 
-(defvar go-next-color 'white
+(defvar go-next-color 'black
   "Holds the next stone color to be played.")
 
 (defun go-toggle-next-color ()
