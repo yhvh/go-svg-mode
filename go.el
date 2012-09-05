@@ -168,13 +168,17 @@ Set to nil after result has been used.  ")
   (interactive)
   (setq go-process-reply nil
 	go-process-result nil)
-  (process-send-string
-   go-process-buffer
-   "final_score\n")
+  (process-send-string go-process-buffer "final_score\n")
   (while (not go-process-result)
     (accept-process-output go-process))
-  (if go-process-result
-      (message go-process-result)))
+  (if (string-match "\\(B\\|W\\)\\+\\([0-9]+\\)" go-process-result)
+      (let ((winner (if (equal (match-string 1 go-process-result) "B")
+			'black
+		      'white))
+	    (score (match-string 2 go-process-result)))
+	(message
+	 (format "%s wins with %s points" winner score)))
+    (go-error)))
 
 (defun go-play-pass ()
   "Calls `go-play-stone' with pass for current color.
