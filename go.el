@@ -28,7 +28,7 @@
 (defgroup go-svg nil
   "Top level for go-svg customization.")
 
-(defcustom go-program "/usr/bin/gnugo"
+(defcustom go-program "gnugo"
   "String containing Go program name."
   :type '(string)
   :group 'go-svg)
