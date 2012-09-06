@@ -361,23 +361,26 @@ score is shown."
 
 (defun go-vertex-labels ()
   "Returns a list of vertex labels for go board"
-  (append (mapcar
-	   (lambda (el)
-	     `(text :x ,(number-to-string (go-pos-pixel-offset el))
-		    :y ,(number-to-string (+ (go-pos-pixel-offset 0) (go-pos-pixel-offset (- go-boardsize 1))))
-		    :font-size "11"
-		    :font-family "Verdana"
-		    ,(char-to-string (if (> 8 el) (+ 65 el) (+ 66 el)))))
-	   (number-sequence 0 (- go-boardsize 1)))
+  (append
+   (mapcar
+    (lambda (el)
+      `(text :x ,(number-to-string (- (go-pos-pixel-offset el) 5))
+	     :y ,(number-to-string
+		  (+ (/ (- (go-pos-pixel-offset 1) (go-pos-pixel-offset 0)) 2)
+		     (go-pos-pixel-offset (- go-boardsize 1))))
+	     :font-size "11"
+	     :font-family "Verdana"
+	     ,(char-to-string (if (> 8 el) (+ 65 el) (+ 66 el)))))
+    (number-sequence 0 (- go-boardsize 1)))
 
-	  (mapcar
-	   (lambda (el)
-	     `(text :x ,(if (> 9 el) "6" "1")
-		    :y ,(number-to-string (go-pos-pixel-offset el))
-		    :font-size "11"
-		    :font-family "Verdana"
-		    ,(number-to-string (1+ el))))
-	   (number-sequence 0 (- go-boardsize 1)))))
+   (mapcar
+    (lambda (el)
+      `(text :x ,(if (> 9 el) "6" "1")
+	     :y ,(number-to-string (go-pos-pixel-offset (- (- go-boardsize 1) el)))
+	     :font-size "11"
+	     :font-family "Verdana"
+	     ,(number-to-string (1+ el))))
+    (number-sequence 0 (- go-boardsize 1)))))
 
 (defun go-board-svg ()
 "Returns the svg to draw the board"
