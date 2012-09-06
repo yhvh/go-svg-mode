@@ -354,7 +354,10 @@ score is shown."
 			(go-pos-pixel-offset
 			 (cadr (go-symbol-position (car last-move)))))
 		  :r ,marker-radius
-		  :fill "red")))))
+		  :stroke ,(if (eq (car (cdr last-move)) 'black)
+			    "url(#wh)"
+			    "url(#rg)")
+		  :stroke-width "2" :fill "none")))))
 
 (defun go-vertex-labels ()
   "Returns a list of vertex labels for go board"
