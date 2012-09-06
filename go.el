@@ -383,32 +383,49 @@ score is shown."
     (number-sequence 0 (- go-boardsize 1)))))
 
 (defun go-board-svg ()
-"Returns the svg to draw the board"
-(let ((padding (go-pos-pixel-offset 0)))
-  `((rect :width ,go-img-size :height ,go-img-size :fill "#DCB35C")
-    (path :stroke "#000" :stroke-width "1" :fill "none"
-	  :d ,(concat
-	       (format "M %d,%d H%d " padding padding (go-pos-pixel-offset (- go-boardsize 1)))
-	       (format "M %d,%d V%d " padding padding (go-pos-pixel-offset (- go-boardsize 1)))
-	       (format "M %d,%d H%d " padding (go-pos-pixel-offset (- go-boardsize 1))
-		       (go-pos-pixel-offset (- go-boardsize 1)))
-	       (format "M %d,%d V%d " (go-pos-pixel-offset (- go-boardsize 1)) padding
-		       (go-pos-pixel-offset (- go-boardsize 1)))
-	       ))
-    (path :stroke "#000" :stroke-width "0.7" :fill "none"
-	  :d ,(mapconcat
-	       (lambda (el)
-		 (concat
-		  (format "M %d,%d H%d " padding (go-pos-pixel-offset el)
-			  (go-pos-pixel-offset (- go-boardsize 1)))
-		  (format "M %d,%d V%d " (go-pos-pixel-offset el) padding
-			  (go-pos-pixel-offset (- go-boardsize 1)))))
-	       (number-sequence 1 (- go-boardsize 1))
-	       ""))
-
-    (path :stroke "#000" :stroke-width "2"
-	  :stroke-linecap "round"
-	  :d (concat (format ""))))))
+  "Returns the svg to draw the board"
+  (let ((padding (go-pos-pixel-offset 0)))
+    `(;; Draw the board background
+      (rect :width ,go-img-size :height ,go-img-size :fill "#DCB35C")
+      ;; Draw the outer square
+      (path :stroke "#000" :stroke-width "1" :fill "none"
+	    :d ,(concat
+		 (format "M %d,%d H%d " padding padding
+			 (go-pos-pixel-offset (- go-boardsize 1)))
+		 (format "M %d,%d V%d " padding padding
+			 (go-pos-pixel-offset (- go-boardsize 1)))
+		 (format "M %d,%d H%d " padding
+			 (go-pos-pixel-offset (- go-boardsize 1))
+			 (go-pos-pixel-offset (- go-boardsize 1)))
+		 (format "M %d,%d V%d " (go-pos-pixel-offset (- go-boardsize 1))
+			 padding (go-pos-pixel-offset (- go-boardsize 1)))
+		 ))
+      ;; Draw the grid
+      (path :stroke "#000" :stroke-width "0.7" :fill "none"
+	    :d ,(mapconcat
+		 (lambda (el)
+		   (concat
+		    (format "M %d,%d H%d " padding (go-pos-pixel-offset el)
+			    (go-pos-pixel-offset (- go-boardsize 1)))
+		    (format "M %d,%d V%d " (go-pos-pixel-offset el) padding
+			    (go-pos-pixel-offset (- go-boardsize 1)))))
+		 (number-sequence 1 (- go-boardsize 1))
+		 ""))
+      ;; Draw Star points, only right for 19x19
+      (path :stroke "#000" :stroke-width "10"
+	    :stroke-linecap "round"
+	    :d ,(concat
+		 (format "M%d,%d l0,0" (go-pos-pixel-offset 3)
+			       (go-pos-pixel-offset 3))
+		 (format "M%d,%d l0,0" (go-pos-pixel-offset 15)
+			       (go-pos-pixel-offset 3))
+		 (format "M%d,%d l0,0" (go-pos-pixel-offset 15)
+			       (go-pos-pixel-offset 15))
+		 (format "M%d,%d l0,0" (go-pos-pixel-offset 3)
+			       (go-pos-pixel-offset 15))
+		 (format "M%d,%d l0,0" (go-pos-pixel-offset 9)
+			 (go-pos-pixel-offset 9))
+		 )))))
 
 (defun go-img-string ()
   "Returns a svg string for game image"
