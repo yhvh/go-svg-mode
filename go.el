@@ -376,7 +376,7 @@ score is shown."
    (mapcar
     (lambda (el)
       `(text :x ,(if (> 9 el) "6" "1")
-	     :y ,(number-to-string (go-pos-pixel-offset (- (- go-boardsize 1) el)))
+	     :y ,(number-to-string (go-pos-pixel-offset el))
 	     :font-size "11"
 	     :font-family "Verdana"
 	     ,(number-to-string (1+ el))))
