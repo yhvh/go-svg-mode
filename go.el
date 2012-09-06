@@ -33,7 +33,7 @@
   :type '(string)
   :group 'go-svg)
 
-(defcustom go-program-args "--mode gtp"
+(defcustom go-program-args (list "--mode" "gtp")
   "String containing Go program command line arguments."
   :type '(string)
   :group 'go-svg)
@@ -108,7 +108,7 @@ Set to nil after result has been used.  ")
   (setq go-process-reply nil)
   (setq go-stones-alist '((black) (white)))
   (setq go-process
-	(start-process "gnugo" "*gnugo*" "gnugo" "--mode" "gtp"))
+	(apply 'start-process "gnugo" "*gnugo*" go-program go-program-args))
   (set-process-filter go-process 'go-filter-function))
 
 (defun go-kill-process ()
