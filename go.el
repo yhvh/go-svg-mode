@@ -414,18 +414,31 @@ score is shown."
       ;; Draw Star points, only right for 19x19
       (path :stroke "#000" :stroke-width "10"
 	    :stroke-linecap "round"
-	    :d ,(concat
-		 (format "M%d,%d l0,0" (go-pos-pixel-offset 3)
-			       (go-pos-pixel-offset 3))
-		 (format "M%d,%d l0,0" (go-pos-pixel-offset 15)
-			       (go-pos-pixel-offset 3))
-		 (format "M%d,%d l0,0" (go-pos-pixel-offset 15)
-			       (go-pos-pixel-offset 15))
-		 (format "M%d,%d l0,0" (go-pos-pixel-offset 3)
-			       (go-pos-pixel-offset 15))
-		 (format "M%d,%d l0,0" (go-pos-pixel-offset 9)
-			 (go-pos-pixel-offset 9))
-		 )))))
+	    :d ,(let ((left-star (if (< 11 go-boardsize)  3 2)))
+		  (concat
+		   ;; corner stars
+		   (format "M%d,%d l0,0" (go-pos-pixel-offset left-star)
+			   (go-pos-pixel-offset left-star))
+		   (format "M%d,%d l0,0" (go-pos-pixel-offset (- go-boardsize (+ 1 left-star)))
+			   (go-pos-pixel-offset left-star))
+		   (format "M%d,%d l0,0" (go-pos-pixel-offset (- go-boardsize (+ 1 left-star)))
+			   (go-pos-pixel-offset (- go-boardsize (+ 1 left-star))))
+		   (format "M%d,%d l0,0" (go-pos-pixel-offset left-star)
+			   (go-pos-pixel-offset (- go-boardsize (+ 1 left-star))))
+		   (if (oddp go-boardsize)
+			 (concat
+			   ;; centre star
+			 (format "M%d,%d l0,0" (go-pos-pixel-offset (/ go-boardsize 2))
+			       (go-pos-pixel-offset  (/ go-boardsize 2)))
+			 ;; four edge stars
+			 (format "M%d,%d l0,0" (go-pos-pixel-offset left-star)
+			       (go-pos-pixel-offset  (/ go-boardsize 2)))
+			 (format "M%d,%d l0,0" (go-pos-pixel-offset (/ go-boardsize 2))
+			       (go-pos-pixel-offset  left-star))
+			 (format "M%d,%d l0,0" (go-pos-pixel-offset (- go-boardsize (+ 1 left-star)))
+			       (go-pos-pixel-offset (/ go-boardsize 2)))
+			 (format "M%d,%d l0,0" (go-pos-pixel-offset (/ go-boardsize 2))
+			       (go-pos-pixel-offset  (- go-boardsize (+ 1 left-star))))))))))))
 
 (defun go-img-string ()
   "Returns a svg string for game image"
