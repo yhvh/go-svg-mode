@@ -498,6 +498,10 @@ stones."
     (define-key map "b" 'go-boardsize-set)
     (define-key map "u" 'go-undo)
     (define-key map "F" 'go-final-score)
+    ;; The svg image has a map of circles which show the pointer as
+    ;; hand and fire an event like: <D4 mouse-1>. Here I bind all these
+    ;; events to `go-play-stone-mouse'. This results in a great many
+    ;; entries in the keymap.
     (dolist (pos go-position-map)
       (eval
        `(define-key map (vector (car pos)  'mouse-1) 'go-play-stone-mouse)))
