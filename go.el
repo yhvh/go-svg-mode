@@ -177,7 +177,7 @@ Set to nil after result has been used.  ")
 		      'white))
 	    (score (match-string 2 go-process-result)))
 	(message
-	 (format "%s wins with %s points" winner score)))
+	 (format "%s wins with +%s points" winner score)))
     (go-error)))
 
 (defun go-play-pass ()
