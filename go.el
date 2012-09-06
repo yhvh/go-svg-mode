@@ -213,9 +213,6 @@ score is shown."
     (go-error))
    (go-process-result
     (go-toggle-next-color)
-    (if (equal pos 'pass)
-	(setq go-last-move-was-pass t)
-      (setq go-last-move-was-pass nil))
     (go-board-update)
     (sit-for 0.1)
     (go-genmove))
