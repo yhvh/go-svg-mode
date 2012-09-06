@@ -247,9 +247,12 @@ score is shown."
      ((string-match "^?" go-process-result)
       (go-error))
      ((string-match "PASS" go-process-result)
-      (setq go-last-move-was-pass t)
       (go-toggle-next-color)
-      (message "PASS"))
+      (if go-last-move-was-pass
+	  (go-final-score)
+	(progn
+	  (setq go-last-move-was-pass t)
+	  (message "PASS"))))
      ((string-match "[A-T]+[0-9]+" go-process-result)
       (progn
 	(setcdr
