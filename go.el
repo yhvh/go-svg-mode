@@ -182,6 +182,30 @@ Set to nil after result has been used.  ")
 
 (defun go-play-pass ()
   "Calls `go-play-stone' with pass for current color.
+(defun go-final-status ()
+  "Get final status of verticies as an alist like
+'((dead G7 K9) (white_territory D4 H1) (black_territory J9 T2) "
+  (interactive)
+  (mapcar
+   (lambda (status)
+     (with-temp-message (concat "gnugo calculating final status… " (symbol-name status))
+       (setq go-process-reply nil
+	     go-process-result nil)
+       (process-send-string go-process-buffer
+			    (concat "final_status_list "
+				    (symbol-name status) "\n"))
+       (while (not go-process-result)
+	 (accept-process-output go-process)))
+     (cond ((string-match "^?" go-process-result)
+	    (go-error))
+	   ((string-match "\\([A-T][0-9]+\\)" go-process-result)
+	    (let ((i) (r))
+	      (while (string-match "\\([A-T][0-9]+\\)" go-process-result i)
+		(setq i (match-end 0)
+		      r (cons (intern (match-string 1 go-process-result)) r)))
+	      (cons status r)))))
+   '(dead white_territory black_territory)))
+
 If the last move was also a pass the game is over and the final
 score is shown."
   (interactive)
