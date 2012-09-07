@@ -480,7 +480,9 @@ score is shown."
 
 (defun go-final-status-svg ()
   "Returns the svg to draw the final status of the verticies."
-  (let* ((r) (width 10) (radius (/ width  2)))
+  (let* ((r) (width
+	      (/ (- (go-pos-pixel-offset 1) (go-pos-pixel-offset 0)) 5))
+	 (radius (/ width  2)))
     (mapcar
      (lambda (status)
        (mapcar
