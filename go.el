@@ -184,8 +184,6 @@ Set to nil after result has been used.  ")
 	 (format "%s wins with +%s points" winner score)))
     (go-error)))
 
-(defun go-play-pass ()
-  "Calls `go-play-stone' with pass for current color.
 (defun go-final-status ()
   "Get final status of verticies as an alist like
 '((dead G7 K9) (white_territory D4 H1) (black_territory J9 T2) "
@@ -210,6 +208,8 @@ Set to nil after result has been used.  ")
 	      (cons status r)))))
    '(dead white_territory black_territory)))
 
+(defun go-play-pass ()
+  "Calls `go-play-stone' with pass for current color.
 If the last move was also a pass the game is over and the final
 score is shown."
   (interactive)
@@ -281,7 +281,7 @@ score is shown."
 	(progn
 	  (setq go-last-move-was-pass t)
 	  (message "PASS"))))
-     ((string-match "[A-T]+[0-9]+" go-process-result)
+     ((string-match "[A-T][0-9]+" go-process-result)
       (progn
 	(setcdr
 	 (assoc col go-stones-alist)
