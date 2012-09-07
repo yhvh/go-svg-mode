@@ -605,8 +605,7 @@ stones."
   "Keymap for `gosvg-mode'")
 
 (define-derived-mode gosvg-mode special-mode "gosvg"
-  "Major mode for playing Go with SVG display
-\\{gosvg-mode-map}"
+  "Major mode for playing Go with SVG display."
   (make-local-variable 'go-stones-alist)
   (make-local-variable 'go-process-result)
   (make-local-variable 'go-process-reply)
