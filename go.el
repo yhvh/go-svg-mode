@@ -45,6 +45,8 @@ of time gnugo will spend thinking about the next move")
 (defvar go-process-buffer "*gnugo*" "The buffer that the go
 process is associated with")
 
+(defvar go-game-over nil
+  "Non-nil if game is over.")
 (defvar go-last-move-was-pass nil
   "Non-nil if last move was a pass.")
 
@@ -120,6 +122,7 @@ Set to nil after result has been used.  ")
   (interactive "nSet boardsize to: ")
   (setq go-process-reply nil)
   (setq go-process-result nil)
+  (setq go-game-over nil)
   (process-send-string
    go-process-buffer
    (concat "boardsize " (number-to-string size) "\n"))
@@ -168,6 +171,7 @@ Set to nil after result has been used.  ")
   (interactive)
   (setq go-process-reply nil
 	go-process-result nil
+	go-game-over t)
   (process-send-string go-process-buffer "final_score\n")
   (while (not go-process-result)
     (accept-process-output go-process))
@@ -520,7 +524,9 @@ score is shown."
 			   (stop :offset ".3" :stop-color "#DDD")
 			   (stop :offset "1" :stop-color "#FFF")))
 	 ,@(go-stones)
-	 ,@(go-last-move-marker))))
+	 ,@(go-last-move-marker)
+	 ,@(if go-game-over
+	     (go-final-status-svg)))))
 
 (defun go-pos-pixel-offset (number)
   "Returns a pixel position for go board position"
@@ -594,6 +600,7 @@ stones."
   (make-local-variable 'go-level)
   (make-local-variable 'go-last-move-was-pass)
   (make-local-variable 'go-level)
+  (make-local-variable 'go-game-over)
   (let ((win-size (window-inside-absolute-pixel-edges)))
     (setq go-img-size (min (- (nth 2 win-size) (nth 0 win-size))
 			   (- (nth 3 win-size) (nth 1 win-size)))))
