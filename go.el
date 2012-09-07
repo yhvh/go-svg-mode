@@ -190,7 +190,8 @@ Set to nil after result has been used.  ")
   (interactive)
   (mapcar
    (lambda (status)
-     (with-temp-message (concat "gnugo calculating final status… " (symbol-name status))
+     (with-temp-message (concat "gnugo calculating final status… "
+				(symbol-name status))
        (setq go-process-reply nil
 	     go-process-result nil)
        (process-send-string go-process-buffer
@@ -372,8 +373,8 @@ score is shown."
   "Returns a marker for last played stone."
   (let ((last-move (go-last-move))
 	(marker-radius (number-to-string
-		       (/ (- (go-pos-pixel-offset 1)
-			     (go-pos-pixel-offset 0)) 5))))
+			(/ (- (go-pos-pixel-offset 1)
+			      (go-pos-pixel-offset 0)) 5))))
     (if last-move
 	`((circle :cx ,(number-to-string
 			(go-pos-pixel-offset
@@ -383,8 +384,8 @@ score is shown."
 			 (cadr (go-symbol-position (car last-move)))))
 		  :r ,marker-radius
 		  :stroke ,(if (eq (car (cdr last-move)) 'black)
-			    "url(#wh)"
-			    "url(#rg)")
+			       "url(#wh)"
+			     "url(#rg)")
 		  :stroke-width "2" :fill "none")))))
 
 (defun go-vertex-labels ()
@@ -447,26 +448,35 @@ score is shown."
 		   ;; corner stars
 		   (format "M%d,%d l0,0" (go-pos-pixel-offset left-star)
 			   (go-pos-pixel-offset left-star))
-		   (format "M%d,%d l0,0" (go-pos-pixel-offset (- go-boardsize (+ 1 left-star)))
+		   (format "M%d,%d l0,0" (go-pos-pixel-offset
+					  (- go-boardsize (+ 1 left-star)))
 			   (go-pos-pixel-offset left-star))
-		   (format "M%d,%d l0,0" (go-pos-pixel-offset (- go-boardsize (+ 1 left-star)))
-			   (go-pos-pixel-offset (- go-boardsize (+ 1 left-star))))
+		   (format "M%d,%d l0,0" (go-pos-pixel-offset
+					  (- go-boardsize (+ 1 left-star)))
+			   (go-pos-pixel-offset
+			    (- go-boardsize (+ 1 left-star))))
 		   (format "M%d,%d l0,0" (go-pos-pixel-offset left-star)
-			   (go-pos-pixel-offset (- go-boardsize (+ 1 left-star))))
+			   (go-pos-pixel-offset
+			    (- go-boardsize (+ 1 left-star))))
 		   (if (oddp go-boardsize)
-			 (concat
-			   ;; centre star
-			 (format "M%d,%d l0,0" (go-pos-pixel-offset (/ go-boardsize 2))
-			       (go-pos-pixel-offset  (/ go-boardsize 2)))
-			 ;; four edge stars
-			 (format "M%d,%d l0,0" (go-pos-pixel-offset left-star)
-			       (go-pos-pixel-offset  (/ go-boardsize 2)))
-			 (format "M%d,%d l0,0" (go-pos-pixel-offset (/ go-boardsize 2))
-			       (go-pos-pixel-offset  left-star))
-			 (format "M%d,%d l0,0" (go-pos-pixel-offset (- go-boardsize (+ 1 left-star)))
-			       (go-pos-pixel-offset (/ go-boardsize 2)))
-			 (format "M%d,%d l0,0" (go-pos-pixel-offset (/ go-boardsize 2))
-			       (go-pos-pixel-offset  (- go-boardsize (+ 1 left-star))))))))))))
+		       (concat
+			;; centre star
+			(format "M%d,%d l0,0" (go-pos-pixel-offset
+					       (/ go-boardsize 2))
+				(go-pos-pixel-offset  (/ go-boardsize 2)))
+			;; four edge stars
+			(format "M%d,%d l0,0" (go-pos-pixel-offset left-star)
+				(go-pos-pixel-offset  (/ go-boardsize 2)))
+			(format "M%d,%d l0,0" (go-pos-pixel-offset
+					       (/ go-boardsize 2))
+				(go-pos-pixel-offset  left-star))
+			(format "M%d,%d l0,0" (go-pos-pixel-offset
+					       (- go-boardsize (+ 1 left-star)))
+				(go-pos-pixel-offset (/ go-boardsize 2)))
+			(format "M%d,%d l0,0" (go-pos-pixel-offset
+					       (/ go-boardsize 2))
+				(go-pos-pixel-offset
+				 (- go-boardsize (+ 1 left-star))))))))))))
 
 (defun go-final-status-svg ()
   "Returns the svg to draw the final status of the verticies."
@@ -475,32 +485,36 @@ score is shown."
      (lambda (status)
        (mapcar
 	(lambda (pos)
-	  (setq r (cons
-		   (cond
-		    ((eq (car status) 'white_territory)
-		     `(rect :x ,(number-to-string (- (go-pos-pixel-offset
-						      (car (go-symbol-position pos)))
-						     (/ width 2)))
-			    :y ,(number-to-string (- (go-pos-pixel-offset
-						      (cadr (go-symbol-position pos)))
-						     (/ width 2)))
-			    :width ,width :height ,width :fill "#FFF"))
-		    ((eq (car status) 'black_territory)
-		     `(rect :x ,(number-to-string (- (go-pos-pixel-offset
-						      (car (go-symbol-position pos)))
-						     (/ width 2)))
-			    :y ,(number-to-string (- (go-pos-pixel-offset
-						      (cadr (go-symbol-position pos)))
-						     (/ width 2)))
-			    :width ,width :height ,width :fill "#000"))
-		    ((eq (car status) 'dead)
-		     `(circle :cx ,(number-to-string (go-pos-pixel-offset
-						      (car (go-symbol-position pos))))
-			      :cy ,(number-to-string (go-pos-pixel-offset
-						      (cadr (go-symbol-position pos))))
-			      :r ,radius :fill ,(if (member pos (cdr (assoc 'black go-stones-alist)))
-							"#FFF" "#000"))))
-		   r)))
+	  (setq r
+		(cons
+		 (cond
+		  ((eq (car status) 'white_territory)
+		   `(rect :x ,(number-to-string (- (go-pos-pixel-offset
+						    (car (go-symbol-position pos)))
+						   (/ width 2)))
+			  :y ,(number-to-string (- (go-pos-pixel-offset
+						    (cadr (go-symbol-position pos)))
+						   (/ width 2)))
+			  :width ,width :height ,width :fill "#FFF"))
+		  ((eq (car status) 'black_territory)
+		   `(rect :x ,(number-to-string (- (go-pos-pixel-offset
+						    (car (go-symbol-position pos)))
+						   (/ width 2)))
+			  :y ,(number-to-string (- (go-pos-pixel-offset
+						    (cadr (go-symbol-position pos)))
+						   (/ width 2)))
+			  :width ,width :height ,width :fill "#000"))
+		  ((eq (car status) 'dead)
+		   `(circle :cx ,(number-to-string (go-pos-pixel-offset
+						    (car (go-symbol-position pos))))
+			    :cy ,(number-to-string (go-pos-pixel-offset
+						    (cadr (go-symbol-position pos))))
+			    :r ,radius
+			    :fill ,(if (member pos
+					       (cdr (assoc 'black go-stones-alist)))
+				       "#FFF"
+				     "#000"))))
+		 r)))
 	(cdr status)))
      (go-final-status))
     r))
@@ -525,8 +539,7 @@ score is shown."
 			   (stop :offset "1" :stop-color "#FFF")))
 	 ,@(go-stones)
 	 ,@(go-last-move-marker)
-	 ,@(if go-game-over
-	     (go-final-status-svg)))))
+	 ,@(if go-game-over (go-final-status-svg)))))
 
 (defun go-pos-pixel-offset (number)
   "Returns a pixel position for go board position"
