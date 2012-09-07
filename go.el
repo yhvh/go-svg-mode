@@ -152,7 +152,7 @@ Set to nil after result has been used.  ")
 
 (defun go-estimate-score ()
   "Estimate score, gtp command"
-  (interactive "sSet Go level to: ")
+  (interactive)
   (setq go-process-reply nil)
   (setq go-process-result nil)
   (process-send-string
@@ -161,17 +161,17 @@ Set to nil after result has been used.  ")
   (while (not go-process-result)
     (accept-process-output go-process))
   (if go-process-result
-      (message go-process-result)))
+      (message (substring go-process-result 1 -2))))
 
 (defun go-final-score ()
   "Show final score."
   (interactive)
   (setq go-process-reply nil
-	go-process-result nil)
+	go-process-result nil
   (process-send-string go-process-buffer "final_score\n")
   (while (not go-process-result)
     (accept-process-output go-process))
-  (if (string-match "\\(B\\|W\\)\\+\\([0-9]+\\)" go-process-result)
+  (if (string-match "\\(B\\|W\\)+\\([0-9]+\\)" go-process-result)
       (let ((winner (if (equal (match-string 1 go-process-result) "B")
 			'black
 		      'white))
@@ -304,7 +304,7 @@ score is shown."
 
 (defun go-stones-refresh-alist ()
   "Returns a list of all stones on board in the form
-'((black (D5 E7) (white (D6 F3)))"
+'((black D5 E7) (white D6 F3)) "
   (setq go-stones-alist
 	`((black ,@(go-list-stones 'black))
 	  (white ,@(go-list-stones 'white)))))
@@ -510,6 +510,7 @@ stones."
     (define-key map "l" 'go-level-set)
     (define-key map "b" 'go-boardsize-set)
     (define-key map "u" 'go-undo)
+    (define-key map "e" 'go-estimate-score)
     (define-key map "F" 'go-final-score)
     ;; The svg image has a map of circles which show the pointer as
     ;; hand and fire an event like: <D4 mouse-1>. Here I bind all these
