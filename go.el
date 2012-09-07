@@ -388,7 +388,7 @@ score is shown."
     `(;; Draw the board background
       (rect :width ,go-img-size :height ,go-img-size :fill "#DCB35C")
       ;; Draw the outer square
-      (path :stroke "#000" :stroke-width "1" :fill "none"
+      (path :stroke "#000" :stroke-width "0.7" :fill "none"
 	    :d ,(concat
 		 (format "M %d,%d H%d " padding padding
 			 (go-pos-pixel-offset (- go-boardsize 1)))
@@ -401,7 +401,7 @@ score is shown."
 			 padding (go-pos-pixel-offset (- go-boardsize 1)))
 		 ))
       ;; Draw the grid
-      (path :stroke "#000" :stroke-width "0.7" :fill "none"
+      (path :stroke "#000" :stroke-width "0.3" :fill "none"
 	    :d ,(mapconcat
 		 (lambda (el)
 		   (concat
@@ -411,8 +411,8 @@ score is shown."
 			    (go-pos-pixel-offset (- go-boardsize 1)))))
 		 (number-sequence 1 (- go-boardsize 1))
 		 ""))
-      ;; Draw Star points, only right for 19x19
-      (path :stroke "#000" :stroke-width "10"
+      ;; Draw Star points
+      (path :stroke "#000" :stroke-width "5"
 	    :stroke-linecap "round"
 	    :d ,(let ((left-star (if (< 11 go-boardsize)  3 2)))
 		  (concat
