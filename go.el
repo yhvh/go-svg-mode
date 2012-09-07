@@ -464,6 +464,43 @@ score is shown."
 			 (format "M%d,%d l0,0" (go-pos-pixel-offset (/ go-boardsize 2))
 			       (go-pos-pixel-offset  (- go-boardsize (+ 1 left-star))))))))))))
 
+(defun go-final-status-svg ()
+  "Returns the svg to draw the final status of the verticies."
+  (let* ((r) (width 10) (radius (/ width  2)))
+    (mapcar
+     (lambda (status)
+       (mapcar
+	(lambda (pos)
+	  (setq r (cons
+		   (cond
+		    ((eq (car status) 'white_territory)
+		     `(rect :x ,(number-to-string (- (go-pos-pixel-offset
+						      (car (go-symbol-position pos)))
+						     (/ width 2)))
+			    :y ,(number-to-string (- (go-pos-pixel-offset
+						      (cadr (go-symbol-position pos)))
+						     (/ width 2)))
+			    :width ,width :height ,width :fill "#FFF"))
+		    ((eq (car status) 'black_territory)
+		     `(rect :x ,(number-to-string (- (go-pos-pixel-offset
+						      (car (go-symbol-position pos)))
+						     (/ width 2)))
+			    :y ,(number-to-string (- (go-pos-pixel-offset
+						      (cadr (go-symbol-position pos)))
+						     (/ width 2)))
+			    :width ,width :height ,width :fill "#000"))
+		    ((eq (car status) 'dead)
+		     `(circle :cx ,(number-to-string (go-pos-pixel-offset
+						      (car (go-symbol-position pos))))
+			      :cy ,(number-to-string (go-pos-pixel-offset
+						      (cadr (go-symbol-position pos))))
+			      :r ,radius :fill ,(if (member pos (cdr (assoc 'black go-stones-alist)))
+							"#FFF" "#000"))))
+		   r)))
+	(cdr status)))
+     (go-final-status))
+    r))
+
 (defun go-img-string ()
   "Returns a svg string for game image"
   (xmlgen
