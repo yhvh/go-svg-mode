@@ -120,17 +120,21 @@ Set to nil after result has been used.  ")
   "Kills the go-process associated with this game."
   (delete-process go-process))
 
+(defun go-gtp-command (command &optional arg)
+  "Sends gtp COMMAND with optional ARG, waits for successful
+output."
+  (setq go-process-reply nil)
+  (setq go-process-result nil)
+  (process-send-string go-process-buffer
+		       (concat command " " arg "\n"))
+  (while (not go-process-result)
+    (accept-process-output go-process)))
+
 (defun go-boardsize-set (size)
   "Set boardsize to SIZE and clear the board"
   (interactive "nSet boardsize to: ")
-  (setq go-process-reply nil)
-  (setq go-process-result nil)
   (setq go-game-over nil)
-  (process-send-string
-   go-process-buffer
-   (concat "boardsize " (number-to-string size) "\n"))
-  (while (not go-process-result)
-    (accept-process-output go-process))
+  (go-gtp-command "boardsize" (number-to-string size))
   (cond
    ((string-match "^?" go-process-result)
     (go-error))
@@ -142,13 +146,7 @@ Set to nil after result has been used.  ")
 (defun go-level-set (level)
   "Set level to LEVEL."
   (interactive "nSet Go level to: ")
-  (setq go-process-reply nil)
-  (setq go-process-result nil)
-  (process-send-string
-   go-process-buffer
-   (concat "level " (number-to-string level) "\n"))
-  (while (not go-process-result)
-    (accept-process-output go-process))
+  (go-gtp-command "level" (number-to-string level))
   (cond
    ((string-match "^?" go-process-result)
     (go-error))
@@ -159,25 +157,15 @@ Set to nil after result has been used.  ")
 (defun go-estimate-score ()
   "Estimate score, gtp command"
   (interactive)
-  (setq go-process-reply nil)
-  (setq go-process-result nil)
-  (process-send-string
-   go-process-buffer
-   "estimate_score\n")
-  (while (not go-process-result)
-    (accept-process-output go-process))
+  (go-gtp-command "estimate_score")
   (if go-process-result
       (message (substring go-process-result 1 -2))))
 
 (defun go-final-score ()
   "Show final score."
   (interactive)
-  (setq go-process-reply nil
-	go-process-result nil
-	go-game-over t)
-  (process-send-string go-process-buffer "final_score\n")
-  (while (not go-process-result)
-    (accept-process-output go-process))
+  (setq go-game-over t)
+  (go-gtp-command "final_score")
   (if (string-match "\\(B\\|W\\)+\\([0-9]+\\)" go-process-result)
       (let ((winner (if (equal (match-string 1 go-process-result) "B")
 			'black
@@ -197,11 +185,7 @@ Set to nil after result has been used.  ")
 				(symbol-name status))
        (setq go-process-reply nil
 	     go-process-result nil)
-       (process-send-string go-process-buffer
-			    (concat "final_status_list "
-				    (symbol-name status) "\n"))
-       (while (not go-process-result)
-	 (accept-process-output go-process)))
+       (go-gtp-command "final_status_list" (symbol-name status)))
      (cond ((string-match "^?" go-process-result)
 	    (go-error))
 	   ((string-match go-position-regex go-process-result)
@@ -231,15 +215,9 @@ score is shown."
   (interactive "SPosition to play: ")
   (setq go-process-reply nil)
   (setq go-process-result nil)
-  (process-send-string
-   go-process-buffer
-   (concat "play "
-	   (symbol-name go-next-color)
-	   " "
-	   (symbol-name pos)
-	   "\n"))
-  (while (not go-process-result)
-    (accept-process-output go-process))
+  (go-gtp-command "play "
+		  (concat (symbol-name go-next-color)
+			  " " (symbol-name pos)))
   (cond
    ((string-match "^?" go-process-result)
     (go-error))
@@ -253,10 +231,7 @@ score is shown."
 (defun go-undo ()
   "Undoes one move."
   (interactive)
-  (setq go-process-reply nil)
-  (setq go-process-result nil)
-  (process-send-string
-   go-process-buffer "undo\n")
+  (go-gtp-command "undo")
   (while (not go-process-result)
     (accept-process-output go-process))
   (if go-process-result
@@ -266,15 +241,9 @@ score is shown."
 (defun go-genmove (&optional color)
   "Generate and play the supposed best move for COLOR."
   (interactive)
-  (setq go-process-reply nil)
-  (setq go-process-result nil)
   (let ((col (or color go-next-color)))
     (with-temp-message "gnugo is thinking…"
-      (process-send-string
-       go-process-buffer
-       (concat "genmove " (symbol-name col) "\n"))
-      (while (not go-process-result)
-	(accept-process-output go-process)))
+      (go-gtp-command "genmove " (symbol-name col)))
     (cond
      ((string-match "^?" go-process-result)
       (go-error))
@@ -298,13 +267,7 @@ score is shown."
 (defun go-last-move ()
   "Return color and vertex of last move. "
   (interactive)
-  (setq go-process-reply nil)
-  (setq go-process-result nil)
-  (process-send-string
-   go-process-buffer
-   "last_move\n")
-  (while (not go-process-result)
-    (accept-process-output go-process))
+  (go-gtp-command "last_move")
   (cond
    ((string-match "^?" go-process-result)
     nil)
@@ -318,13 +281,7 @@ score is shown."
 
 (defun go-list-stones (color)
   "Returns a list of positions for COLOR"
-  (setq go-process-reply nil)
-  (setq go-process-result nil)
-  (process-send-string
-   go-process-buffer
-   (concat "list_stones " (symbol-name color) " \n"))
-  (while (not go-process-result)
-    (accept-process-output go-process))
+  (go-gtp-command "list_stones " (symbol-name color))
   (cond
    ((string-match "^?" go-process-result)
     (go-error))
