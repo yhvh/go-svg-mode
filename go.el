@@ -45,6 +45,9 @@ of time gnugo will spend thinking about the next move")
 (defvar go-process-buffer "*gnugo*" "The buffer that the go
 process is associated with")
 
+(defconst go-position-regex "\\([A-T][0-9]+\\)"
+"Regex matching go board position")
+
 (defvar go-game-over nil
   "Non-nil if game is over.")
 (defvar go-last-move-was-pass nil
@@ -201,9 +204,9 @@ Set to nil after result has been used.  ")
 	 (accept-process-output go-process)))
      (cond ((string-match "^?" go-process-result)
 	    (go-error))
-	   ((string-match "\\([A-T][0-9]+\\)" go-process-result)
+	   ((string-match go-position-regex go-process-result)
 	    (let ((i) (r))
-	      (while (string-match "\\([A-T][0-9]+\\)" go-process-result i)
+	      (while (string-match go-position-regex go-process-result i)
 		(setq i (match-end 0)
 		      r (cons (intern (match-string 1 go-process-result)) r)))
 	      (cons status r)))))
@@ -325,7 +328,7 @@ score is shown."
   (cond
    ((string-match "^?" go-process-result)
     (go-error))
-   ((string-match "\\([A-T][0-9]+\\)" go-process-result)
+   ((string-match go-position-regex go-process-result)
     (mapcar
      'intern
      (split-string (substring go-process-result 1))))
