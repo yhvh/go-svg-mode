@@ -216,7 +216,7 @@ score is shown."
   (setq go-process-reply nil)
   (setq go-process-result nil)
   (go-gtp-command "play "
-		  (concat (symbol-name go-next-color)
+		  (concat (upcase (symbol-name go-next-color))
 			  " " (symbol-name pos)))
   (cond
    ((string-match "^?" go-process-result)
