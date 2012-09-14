@@ -247,6 +247,9 @@ score is shown."
     (cond
      ((string-match "^?" go-process-result)
       (go-error))
+     ((string-match "RESIGN" go-process-result)
+      (message (concat (symbol-name col) "RESIGN"))
+      (go-final-score))
      ((string-match "PASS" go-process-result)
       (go-toggle-next-color)
       (if go-last-move-was-pass
