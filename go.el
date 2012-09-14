@@ -224,7 +224,7 @@ score is shown."
    (go-process-result
     (go-toggle-next-color)
     (go-board-update)
-    (sit-for 0.1)
+    ;; (sit-for 0.1)
     (go-genmove))
    (t nil)))
 
