@@ -1,0 +1,2 @@
+* go-svg-mode.el
+  A mode exists to interface emacs with gnugo, but I like pretty pictures so I made this.
