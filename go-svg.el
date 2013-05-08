@@ -601,3 +601,6 @@ stones."
   (go-kill-process)
   (kill-buffer go-process-buffer)
   (kill-buffer "gosvg"))
+
+(provide 'go-svg)
+;;; go-svg.el ends here
