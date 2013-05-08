@@ -25,6 +25,10 @@
 
 ;;; Commentary:
 
+;; A go gtp interface with svg image support.
+
+;;; Code:
+
 (defgroup go-svg nil
   "Top level for go-svg customization.")
 
@@ -597,3 +601,6 @@ stones."
   (go-kill-process)
   (kill-buffer go-process-buffer)
   (kill-buffer "gosvg"))
+
+(provide 'go-svg)
+;;; go-svg.el ends here
