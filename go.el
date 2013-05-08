@@ -25,6 +25,10 @@
 
 ;;; Commentary:
 
+;; A go gtp interface with svg image support.
+
+;;; Code:
+
 (defgroup go-svg nil
   "Top level for go-svg customization.")
 
