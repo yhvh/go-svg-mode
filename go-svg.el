@@ -158,6 +158,34 @@ output."
     (setq go-level level))
    (t nil)))
 
+(defun go-load-sgf (file)
+  "Load sgf FILE, set next color to play."
+  (interactive "fFile: ")
+  (go-gtp-command (concat "loadsgf " (expand-file-name file)))
+  (cond ((string-match "^?" go-process-result)
+	 (go-error))
+	((string-match "^=" go-process-result)
+	 (let ((sgf (go-save-sgf)))
+	   ;; read the boardsize and set
+	   (string-match "SZ\\[\\([0-9]+\\)\\]" sgf)
+	   (setq go-boardsize (string-to-number (match-string 1 sgf)))
+	   ;; read next color to play and set
+	   (string-match "PL\\[\\(B\\|W\\)\\]" sgf)
+	   (setq go-next-color (if (equal "B" (match-string 1 sgf))
+				   'black 'white))
+	   (go-board-update)))))
+
+(defun go-save-sgf (file)
+  "Save the current position as sgf. FILE specifies filename to
+save in."
+  (interactive "FFile to save as: ")
+  (let ((arg (if file (expand-file-name file) "-")))
+    (go-gtp-command (concat "printsgf " arg))
+    (if go-process-result
+	(if (equal arg "-")
+	    (substring go-process-result 1 -2)
+	  (message (concat "Saved game at: " arg ))))))
+
 (defun go-estimate-score ()
   "Estimate score, gtp command"
   (interactive)
@@ -561,6 +589,8 @@ stones."
     (define-key map "u" 'go-undo)
     (define-key map "e" 'go-estimate-score)
     (define-key map "F" 'go-final-score)
+    (define-key map "L" 'go-load-sgf)
+    (define-key map "S" 'go-save-sgf)
     ;; The svg image has a map of circles which show the pointer as
     ;; hand and fire an event like: <D4 mouse-1>. Here I bind all these
     ;; events to `go-play-stone-mouse'. This results in a great many
