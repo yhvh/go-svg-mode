@@ -170,7 +170,7 @@ output."
   (interactive)
   (setq go-game-over t)
   (go-gtp-command "final_score")
-  (if (string-match "\\(B\\|W\\)+\\([0-9]+\\)" go-process-result)
+  (if (string-match "\\(B\\|W\\)\\+\\([0-9]+\\.[0-9]+\\)" go-process-result)
       (let ((winner (if (equal (match-string 1 go-process-result) "B")
 			'black
 		      'white))
