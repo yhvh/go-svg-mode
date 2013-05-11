@@ -596,8 +596,7 @@ stones."
     ;; events to `go-play-stone-mouse'. This results in a great many
     ;; entries in the keymap.
     (dolist (pos go-position-map)
-      (eval
-       `(define-key map (vector (car pos)  'mouse-1) 'go-play-stone-mouse)))
+       (define-key map (vector (car pos)  'mouse-1) 'go-play-stone-mouse))
     map)
   "Keymap for `gosvg-mode'")
 
