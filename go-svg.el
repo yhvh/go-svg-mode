@@ -29,6 +29,8 @@
 
 ;;; Code:
 
+(require 'cl-libo)
+
 (defgroup go-svg nil
   "Top level for go-svg customization.")
 
@@ -453,7 +455,7 @@ score is shown."
 		   (format "M%d,%d l0,0" (go-pos-pixel-offset left-star)
 			   (go-pos-pixel-offset
 			    (- go-boardsize (+ 1 left-star))))
-		   (if (oddp go-boardsize)
+		   (if (cl-oddp go-boardsize)
 		       (concat
 			;; centre star
 			(format "M%d,%d l0,0" (go-pos-pixel-offset
