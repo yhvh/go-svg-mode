@@ -29,7 +29,7 @@
 
 ;;; Code:
 
-(require 'cl-libo)
+(require 'cl-lib)
 
 (defgroup go-svg nil
   "Top level for go-svg customization.")
